@@ -5,6 +5,7 @@ import imutils
 cap = cv.VideoCapture(-1)
 mask = cv.imread('mask_2.png',0)
 
+
 def get_template(letter): #load the template image and crop it.
     img = cv.imread('letters/'+letter+'.PNG', 0)
     ret,img = cv.threshold(img,200,255,cv.THRESH_BINARY)
@@ -22,8 +23,15 @@ def get_template(letter): #load the template image and crop it.
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 letter_template_pairs = [(l, get_template(l)) for l in letters]
 
+def three_letter_words():
+    #Fill this in.
+    return True
 
-while True:
+def next_level():
+    #Fill this in.
+    return None
+
+def get_letters_and_locations()
     ret, frame = cap.read()
     if not ret:
         print("no frame")
@@ -43,13 +51,15 @@ while True:
     cnts, heirarchy = cv.findContours(inverted, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     #cnts = imutils.grab_contours(cnts)
     
-    contours = [c for c in cnts if cv.boundingRect(c)[3] > 10]
+    contours = [c for c in cnts if cv.boundingRect(c)[3] > 15]
     for i, c in enumerate(contours):
         bx, by, bw, bh = cv.boundingRect(c)
         #cv.rectangle(threshed, (bx, by), (bx+bw, by+bh), (0,0,255), 2)
         #cv.drawContours(gray, [c], -1, (0,0,255), 2)
     
     game_letters = []
+
+    #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
         im = threshed[by:by+bh, bx:bx+bw]
@@ -61,23 +71,14 @@ while True:
             res = cv.matchTemplate(im,letter_template,cv.TM_CCOEFF_NORMED)
             score = res[0][0]
             if score > best_score:
-
                 best_score = score
                 best_match = letter
-        game_letters.append(best_match)
-
-    print(game_letters)
-
-    #cv.imwrite("tatcr.png", gray)
-
-    cv.imshow('frame', threshed)
-    if cv.waitKey(1) == ord('q'):
-        break
+        location = (bx+(bw/2), by+(bh/2))
+        game_letters.append((best_match, location))
+    
+    return game_letters
 
 
-cap.release()
-cv.destroyAllWindows()
-
-
-
-print(pytesseract.image_to_string(Image.open('tatcr.png')))
+def tear_down():
+    cap.release()
+    cv.destroyAllWindows()

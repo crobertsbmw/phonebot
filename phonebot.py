@@ -13,6 +13,7 @@ class PhoneBot:
             print(line)
             if line == b'ok\n':
                 break
+
     def connect(self):
         ports = [str(p).split(" - ")[0] for p in list_ports.comports()]
         print(ports)
@@ -27,8 +28,12 @@ class PhoneBot:
         self.command("M140 S0")
         self.command("G28")
         self.command("G90")
+        self.tap_up()
 
-    def moveTo(self, x=None, y=None, z=None):
+    def move_to(self, x=None, y=None, z=None):
+        if z < 100:
+            print("ERROR. Z CANNOT BE LESS THAN 100")
+            return
         cmd = "G1"
         if x != None:
             cmd += " X"+str(x)
@@ -39,4 +44,9 @@ class PhoneBot:
         cmd += " F6000"
         self.command(cmd)
 
+    def tap_down(self):
+        self.move_to(z=100)
+
+    def tap_up(self):
+        self.move_to(z=130)
 
