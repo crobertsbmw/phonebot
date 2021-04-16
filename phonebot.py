@@ -1,7 +1,8 @@
 import serial
 import time
 from serial.tools import list_ports
-
+Z_UP = 52
+Z_DOWN = 46.4
 class PhoneBot:
     conn = None
     
@@ -28,11 +29,11 @@ class PhoneBot:
         self.command("M140 S0")
         self.command("G28")
         self.command("G90")
-        self.tap_up()
+        self.command("G1 Y150 Z52 F6000")
 
     def move_to(self, x=None, y=None, z=None):
-        if z < 100:
-            print("ERROR. Z CANNOT BE LESS THAN 100")
+        if z and z < 30:
+            print("ERROR. Z CANNOT BE LESS THAN 30")
             return
         cmd = "G1"
         if x != None:
@@ -45,8 +46,8 @@ class PhoneBot:
         self.command(cmd)
 
     def tap_down(self):
-        self.move_to(z=100)
+        self.move_to(z=Z_DOWN)
 
     def tap_up(self):
-        self.move_to(z=130)
+        self.move_to(z=Z_UP)
 

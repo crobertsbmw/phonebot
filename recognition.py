@@ -3,8 +3,6 @@ import cv2 as cv
 import imutils
 
 cap = cv.VideoCapture(-1)
-mask = cv.imread('mask_2.png',0)
-
 
 def get_template(letter): #load the template image and crop it.
     img = cv.imread('letters/'+letter+'.PNG', 0)
@@ -23,15 +21,29 @@ def get_template(letter): #load the template image and crop it.
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 letter_template_pairs = [(l, get_template(l)) for l in letters]
 
-def three_letter_words():
+def can_have_three_letters():
     #Fill this in.
     return True
 
 def next_level():
-    #Fill this in.
-    return None
+    template = cv.imread('level.png',0)
+    w, h = template.shape[::-1]
 
-def get_letters_and_locations()
+    ret, frame = cap.read()
+    if not ret:
+        print("no frame")
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    
+    res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+
+    if max_val < 0.80: 
+        return None
+    return (top_left[0]+(w/2), top_left[1]+(h/2))
+
+
+def get_letters_and_locations():
+    mask = cv.imread('mask_2.png',0)
     ret, frame = cap.read()
     if not ret:
         print("no frame")
@@ -39,7 +51,7 @@ def get_letters_and_locations()
     # gray = cv.bilateralFilter(gray,7,75,75)
     # gray = cv.GaussianBlur(gray,(5,5),0)
 
-    crop_x, crop_y, crop_w, crop_h = 255, 185, 125, 125
+    crop_x, crop_y, crop_w, crop_h = 255, 123, 125, 125
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
 
 
@@ -52,16 +64,15 @@ def get_letters_and_locations()
     #cnts = imutils.grab_contours(cnts)
     
     contours = [c for c in cnts if cv.boundingRect(c)[3] > 15]
-    for i, c in enumerate(contours):
-        bx, by, bw, bh = cv.boundingRect(c)
-        #cv.rectangle(threshed, (bx, by), (bx+bw, by+bh), (0,0,255), 2)
-        #cv.drawContours(gray, [c], -1, (0,0,255), 2)
     
     game_letters = []
 
     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
+        if bh < 15: continue #too small
+        if bw > 50 or bh > 50: continue # too big
+
         im = threshed[by:by+bh, bx:bx+bw]
         im = cv.resize(im, (50, 50), interpolation = cv.INTER_AREA)
         best_match = "A"
@@ -73,9 +84,11 @@ def get_letters_and_locations()
             if score > best_score:
                 best_score = score
                 best_match = letter
-        location = (bx+(bw/2), by+(bh/2))
-        game_letters.append((best_match, location))
-    
+        if best_score > 0.45:
+            location = (bx+(bw/2), by+(bh/2))
+            game_letters.append((best_match, location))
+    if len(game_letters) < 3:
+        return None
     return game_letters
 
 
