@@ -41,7 +41,7 @@ def next_level():
         return None
     return (top_left[0]+(w/2), top_left[1]+(h/2))
 
-
+    
 def get_letters_and_locations():
     mask = cv.imread('mask_2.png',0)
     ret, frame = cap.read()
@@ -51,7 +51,7 @@ def get_letters_and_locations():
     # gray = cv.bilateralFilter(gray,7,75,75)
     # gray = cv.GaussianBlur(gray,(5,5),0)
 
-    crop_x, crop_y, crop_w, crop_h = 255, 123, 125, 125
+    crop_x, crop_y, crop_w, crop_h = 255, 240, 125, 125
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
 
 
@@ -85,7 +85,7 @@ def get_letters_and_locations():
                 best_score = score
                 best_match = letter
         if best_score > 0.45:
-            location = (bx+(bw/2), by+(bh/2))
+            location = (bx+(bw/2)+crop_x, by+(bh/2)+crop_y)
             game_letters.append((best_match, location))
     if len(game_letters) < 3:
         return None

@@ -4,7 +4,7 @@ with open('dictionary.txt', "r") as file_object:
     # read file content
     data = file_object.read()
     dictionary = data.split("\n")
-    dictionary = [d for d in dictionary if len(d) > 2]
+    dictionary = [d.upper() for d in dictionary if len(d) > 2]
 
 def search_dictionary(letters, three_letters=True):
     perms = permutations(letters)
@@ -20,3 +20,5 @@ def permutations(letters):
         for subset in itertools.permutations(letters, L):
             perms.append("".join(subset))
     return list(set(perms))
+
+
