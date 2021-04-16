@@ -12,6 +12,7 @@ def search_dictionary(letters, three_letters=True):
     words = [p for p in perms if p in sub_dict]
     if not three_letters:
         words = [w for w in words if len(w) > 3]
+    words.sort(key=len)
     return words
 
 def permutations(letters):

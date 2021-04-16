@@ -29,9 +29,15 @@ while True:
     cv.namedWindow('image')
     cv.setMouseCallback('image',draw_circle)
 
+    
+    res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+    bottom_right = (top_left[0] + w, top_left[1] + h)
 
+    cv.rectangle(gray,top_left, bottom_right, 255, 2)
+    print(max_val)
 
-    #cv.imwrite("level.png", gray)
+    #cv.imwrite("level_2.png", gray)
 
     cv.imshow('image', gray)
     if cv.waitKey(1) == ord('q'):

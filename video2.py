@@ -27,7 +27,6 @@ def can_have_three_letters():
 
 def next_level():
     template = cv.imread('level.png',0)
-    template_2 = cv.imread('level_2.png',0)
     w, h = template.shape[::-1]
 
     ret, frame = cap.read()
@@ -37,16 +36,13 @@ def next_level():
     
     res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-    
-    if max_val < 0.70: 
-        res = cv.matchTemplate(gray,template_2,cv.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-        if max_val < 0.70:
-            return None
+
+    if max_val < 0.80: 
+        return None
     return (top_left[0]+(w/2), top_left[1]+(h/2))
 
     
-def get_letters_and_locations():
+while True:
     mask = cv.imread('mask_2.png',0)
     ret, frame = cap.read()
     if not ret:
@@ -54,7 +50,7 @@ def get_letters_and_locations():
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     # gray = cv.bilateralFilter(gray,7,75,75)
     # gray = cv.GaussianBlur(gray,(5,5),0)
-
+    cv.imshow('image2', gray)
     crop_x, crop_y, crop_w, crop_h = 255, 240, 125, 125
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
 
@@ -89,11 +85,14 @@ def get_letters_and_locations():
                 best_score = score
                 best_match = letter
         if best_score > 0.45:
-            location = (bx+(bw/2)+crop_x, by+(bh/2)+crop_y)
+            location = (bx+(bw/2), by+(bh/2))
             game_letters.append((best_match, location))
-    if len(game_letters) < 3:
-        return None
-    return game_letters
+
+    print(game_letters)
+
+    cv.imshow('image', threshed)
+    if cv.waitKey(1) == ord('q'):
+        break
 
 
 def tear_down():
