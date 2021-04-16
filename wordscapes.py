@@ -25,15 +25,33 @@ while True:
     words = search_dictionary(letters, three_letters)
 
     for word in words:
-        tap_out_word(word)
+        tap_out_word(word, letters_and_locations)
         sleep(1.0)
         if not get_letters_and_locations():
             break
     else:
         print("We got here because we failed to find a word. Here are the words we tried\n\n", words)
 
-def tap_out_word():
-    pass
+def move_to_camera(location):
+    x = camera_to_bot_coordinates(location[0])
+    y = camera_to_bot_coordinates(location[1])
+    bot.move_to(x=x, y=y)
+
+def tap_out_word(word, landl):
+    first_letter = False
+    bot.tap_up()
+    for letter in word:
+        for i, v in enumerate(landl):
+            l, location = v
+            if l == letter:
+                move_to_camera(location)
+                if first_letter:
+                    bot.tap_down()
+                    first_letter = False
+                landl.remove(v)
+                break
+    bot.tap_up()
+
 
 def tap_btn(location):
     bot.tap_up()
