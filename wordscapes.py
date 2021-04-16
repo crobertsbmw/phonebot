@@ -55,8 +55,9 @@ def camera_to_bot_coordinates(location):
     cam_bottom_y = 390
 
     x, y = location
-    
-    new_x = 600 + (x * 0.87)
-    new_y = 300 + (y * 0.87)
+
+    new_x = (x-cam_min_x) / (cam_max_x-cam_min_x) * (bot_max_x-bot_min_x) + bot_min_x
+    new_y = (y-cam_bottom_y) / (cam_top_y-cam_bottom_y) * (bot_top_y-bot_bottom_y) + bot_bottom_y
+
     return new_x, new_y
     
