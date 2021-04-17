@@ -65,11 +65,14 @@ def get_letters_and_locations():
     if not ret:
         print("no frame")
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    # gray = cv.bilateralFilter(gray,7,75,75)
-    # gray = cv.GaussianBlur(gray,(5,5),0)
 
-    crop_x, crop_y, crop_w, crop_h = 255, 240, 125, 125
+    crop_x, crop_y, crop_w, crop_h = 255, 235, 125, 125
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    gray = cv.bilateralFilter(gray,7,75,75)
+
+    m = cv.mean(gray)[0]
+    if m < 160:
+        gray = cv.bitwise_not(gray)
 
     threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
