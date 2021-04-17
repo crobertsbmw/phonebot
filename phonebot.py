@@ -24,12 +24,13 @@ class PhoneBot:
         time.sleep(2.0)
 
     def home(self):
-        self.command("M106 S0")
+        self.command("M107")
         self.command("M104 S0")
         self.command("M140 S0")
         self.command("G28")
         self.command("G90")
         self.command("G1 Y150 Z52 F6000")
+        self.command("M400")
 
     def move_to(self, x=None, y=None, z=None):
         if z and z < 30:
@@ -47,6 +48,8 @@ class PhoneBot:
             cmd += " Z"+str(z)
         cmd += " F6000"
         self.command(cmd)
+        self.command("M400")
+        self.command("M107")
 
     def tap_down(self):
         self.move_to(z=Z_DOWN)
