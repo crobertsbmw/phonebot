@@ -1,5 +1,5 @@
 from phonebot import PhoneBot
-from recognition import get_letters_and_locations, next_level, tear_down, can_have_three_letters
+from recognition import get_letters_and_locations, next_level, can_have_three_letters
 from dictionary import search_dictionary
 import time
 
@@ -52,8 +52,9 @@ while True:
     if level:
         print("Clicking next level")
         tap_btn(level)
+        bot.move_to(x = 100)
 
-    time.sleep(2.0)
+    time.sleep(2.5)
 
     three_letters = can_have_three_letters()
     letters_and_locations = get_letters_and_locations()
@@ -67,7 +68,7 @@ while True:
 
     for word in words:
         tap_out_word(word, letters_and_locations)
-        time.sleep(0.5)
+        time.sleep(1.0)
         if len(word) == len(letters):
             bot.move_to(x = 100)
             if not get_letters_and_locations():

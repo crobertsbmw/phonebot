@@ -2,8 +2,6 @@ import numpy as np
 import cv2 as cv
 import imutils
 
-cap = cv.VideoCapture(-1)
-
 def get_template(letter): #load the template image and crop it.
     img = cv.imread('letters/'+letter+'.PNG', 0)
     ret,img = cv.threshold(img,200,255,cv.THRESH_BINARY)
@@ -20,14 +18,18 @@ def get_template(letter): #load the template image and crop it.
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 letter_template_pairs = [(l, get_template(l)) for l in letters]
+debug = 0
 
 def can_have_three_letters():
     #Fill this in.
     return True
 
 def next_level():
-    template = cv.imread('level.png',0)
-    template_2 = cv.imread('level_2.png',0)
+    cap = cv.VideoCapture(-1)
+    global debug
+    debug += 1
+    template = cv.imread('level_3.png',0)
+
     w, h = template.shape[::-1]
 
     ret, frame = cap.read()
@@ -35,20 +37,31 @@ def next_level():
         print("no frame")
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     
-    res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
+    crop_x, crop_y, crop_w, crop_h = 200, 120, 260, 235
+    gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    inverted = cv.bitwise_not(gray)
+    ret,threshed = cv.threshold(inverted,30,255,cv.THRESH_BINARY)
+
+    res = cv.matchTemplate(threshed,template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
     
-    if max_val < 0.70: 
-        res = cv.matchTemplate(gray,template_2,cv.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-        if max_val < 0.70:
-            return None
-    return (top_left[0]+(w/2), top_left[1]+(h/2))
+    if max_val < 0.60: 
+        return None
+    bottom_right = (top_left[0] + w, top_left[1] + h)
+    cv.rectangle(gray,top_left, bottom_right, 255, 2)
+    cv.imwrite("next_level_"+str(debug)+".png", gray)
+
+    cap.release()
+
+    return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
     
 def get_letters_and_locations():
+    cap = cv.VideoCapture(-1)
     mask = cv.imread('mask_2.png',0)
     ret, frame = cap.read()
+    cap.release()
+
     if not ret:
         print("no frame")
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -57,7 +70,6 @@ def get_letters_and_locations():
 
     crop_x, crop_y, crop_w, crop_h = 255, 240, 125, 125
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
-
 
     threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
@@ -95,7 +107,4 @@ def get_letters_and_locations():
         return None
     return game_letters
 
-
-def tear_down():
-    cap.release()
-    cv.destroyAllWindows()
+    
