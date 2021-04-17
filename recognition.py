@@ -33,6 +33,8 @@ def next_level():
     w, h = template.shape[::-1]
 
     ret, frame = cap.read()
+    cap.release()
+
     if not ret:
         print("no frame")
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -50,8 +52,6 @@ def next_level():
     bottom_right = (top_left[0] + w, top_left[1] + h)
     cv.rectangle(gray,top_left, bottom_right, 255, 2)
     cv.imwrite("next_level_"+str(debug)+".png", gray)
-
-    cap.release()
 
     return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
