@@ -48,10 +48,6 @@ while True:
         cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
         # draw the center of the circle
         cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
-
-
-    ret,threshed = cv.threshold(gray,230,255,cv.THRESH_BINARY)
-
     
 
     cv.imshow('image', cimg)

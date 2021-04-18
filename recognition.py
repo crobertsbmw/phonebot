@@ -55,8 +55,18 @@ def next_level():
 
     return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
-    
-def get_letters_and_locations():
+
+def get_circle_coord(img):
+    circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
+                                param1=100,param2=30,minRadius=55,maxRadius=70)
+    circles = np.uint16(np.around(circles))
+
+    for i in circles[0,:]:
+        # draw the outer circle
+        return i
+
+
+def get_letters_and_locations(video=False):
     cap = cv.VideoCapture(-1)
     mask = cv.imread('mask_2.png',0)
     ret, frame = cap.read()
@@ -65,10 +75,13 @@ def get_letters_and_locations():
     if not ret:
         print("no frame")
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-
-    crop_x, crop_y, crop_w, crop_h = 255, 235, 125, 125
-    gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     gray = cv.bilateralFilter(gray,7,75,75)
+
+    x, y, r = get_circle_image(gray)
+
+    crop_x, crop_y, crop_w, crop_h = x-r, y-r, r*2, r*2
+    gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+
 
     m = cv.mean(gray)[0]
     if m < 160:
@@ -76,6 +89,7 @@ def get_letters_and_locations():
 
     threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
+    mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
     threshed = cv.bitwise_or(threshed, mask)
 
     inverted = cv.bitwise_not(threshed)
@@ -106,8 +120,15 @@ def get_letters_and_locations():
         if best_score > 0.45:
             location = (bx+(bw/2)+crop_x, by+(bh/2)+crop_y)
             game_letters.append((best_match, location))
+    if video:
+        cv.imshow('image', threshed)
+        print(game_letters)
+
     if len(game_letters) < 3:
         return None
     return game_letters
 
-    
+
+if __name__ == "__main__":
+    while True:
+        get_letters_and_locations(video=True)
