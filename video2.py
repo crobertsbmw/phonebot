@@ -59,8 +59,7 @@ while True:
         gray = cv.bitwise_not(gray)
 
     threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
-
-    threshed = cv.bitwise_or(threshed, mask)
+    #threshed = cv.bitwise_or(threshed, mask)
 
     inverted = cv.bitwise_not(threshed)
     cnts, heirarchy = cv.findContours(inverted, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
