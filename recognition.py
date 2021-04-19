@@ -28,9 +28,9 @@ def next_level():
     cap = cv.VideoCapture(-1)
     global debug
     debug += 1
-    template = cv.imread('level_3.png',0)
+    next_level_template = cv.imread('level_3.png',0)
+    collect_template = cv.imread('collect.png',0)
 
-    w, h = template.shape[::-1]
 
     ret, frame = cap.read()
     cap.release()
@@ -44,11 +44,18 @@ def next_level():
     inverted = cv.bitwise_not(gray)
     ret,threshed = cv.threshold(inverted,30,255,cv.THRESH_BINARY)
 
-    res = cv.matchTemplate(threshed,template,cv.TM_CCOEFF_NORMED)
+    res = cv.matchTemplate(threshed,next_level_template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+    w, h = next_level_template.shape[::-1]
+
+    if max_val < 0.60:
+        res = cv.matchTemplate(threshed,collect_template,cv.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+        w, h = collect_template.shape[::-1]
+
+        if max_val < 0.60:
+            return None
     
-    if max_val < 0.60: 
-        return None
     bottom_right = (top_left[0] + w, top_left[1] + h)
     cv.rectangle(gray,top_left, bottom_right, 255, 2)
     cv.imwrite("next_level_"+str(debug)+".png", gray)
@@ -59,28 +66,44 @@ def next_level():
 def get_circle_coord(img):
     circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
                                 param1=100,param2=30,minRadius=55,maxRadius=70)
-    circles = np.uint16(np.around(circles))
+    try:
+        circles = np.uint16(np.around(circles))
+    except:
+        return None
 
     for i in circles[0,:]:
         # draw the outer circle
         return i
 
+def show_image(img):
+    cv.imshow('image', img)
+    if cv.waitKey(1) == ord('q'):
+        return None
 
-def get_letters_and_locations(video=False):
-    cap = cv.VideoCapture(-1)
+def get_letters_and_locations(video=False, cap=None):
+    if not cap:    
+        cap = cv.VideoCapture(-1)
+        ret, frame = cap.read()
+        cap.release()
+    else:
+        ret, frame = cap.read()
+
     mask = cv.imread('mask_2.png',0)
-    ret, frame = cap.read()
-    cap.release()
 
     if not ret:
         print("no frame")
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     gray = cv.bilateralFilter(gray,7,75,75)
 
-    x, y, r = get_circle_image(gray)
-
-    crop_x, crop_y, crop_w, crop_h = x-r, y-r, r*2, r*2
-    gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    coord = get_circle_coord(gray)
+    try:    
+        x, y, r = coord
+        crop_x, crop_y, crop_w, crop_h = x-r, y-r, r*2, r*2
+        gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    except:
+        if video:
+            show_image(gray)
+        return None
 
 
     m = cv.mean(gray)[0]
@@ -121,8 +144,9 @@ def get_letters_and_locations(video=False):
             location = (bx+(bw/2)+crop_x, by+(bh/2)+crop_y)
             game_letters.append((best_match, location))
     if video:
-        cv.imshow('image', threshed)
+        show_image(threshed)
         print(game_letters)
+        
 
     if len(game_letters) < 3:
         return None
@@ -130,5 +154,6 @@ def get_letters_and_locations(video=False):
 
 
 if __name__ == "__main__":
+    cap = cv.VideoCapture(-1)
     while True:
-        get_letters_and_locations(video=True)
+        get_letters_and_locations(video=True, cap=cap)
