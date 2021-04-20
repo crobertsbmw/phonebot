@@ -2,6 +2,8 @@ import numpy as np
 import cv2 as cv
 import imutils
 import math
+import time
+cap = cv.VideoCapture(-1)
 
 def get_template(letter): #load the template image and crop it.
     img = cv.imread('letters/'+letter+'.PNG', 0)
@@ -14,27 +16,20 @@ def get_template(letter): #load the template image and crop it.
     bx, by, bw, bh = cv.boundingRect(contour)
     img = img[by:by+bh, bx:bx+bw]
     resized = cv.resize(img, (50, 50), interpolation = cv.INTER_AREA)
-    if letter == "S" or letter == "F":
-        cv.imwrite("template_"+str(letter)+".png", resized)
     return resized
 
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 letter_template_pairs = [(l, get_template(l)) for l in letters]
-debug = 0
 
 def can_have_three_letters():
     #Fill this in.
     return True
 
 def next_level():
-    cap = cv.VideoCapture(-1)
-    global debug
-    debug += 1
     next_level_template = cv.imread('level_3.png',0)
     collect_template = cv.imread('collect.png',0)
     ret, frame = cap.read()
-    cap.release()
 
     if not ret:
         print("no frame")
@@ -58,10 +53,7 @@ def next_level():
             return None
     
     bottom_right = (top_left[0] + w, top_left[1] + h)
-    print("saving an image?")
-    cv.rectangle(gray,top_left, bottom_right, 255, 2)
-    cv.imwrite("next_level_"+str(debug)+".png", gray)
-    print("done saving image")
+    #cv.rectangle(gray,top_left, bottom_right, 255, 2)
     
     return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
@@ -80,6 +72,8 @@ def get_circle_coord(img):
 
 def show_image(img):
     cv.imshow('image', img)
+    cv.imwrite("TestImage.png", img)
+    alert("error time")
     if cv.waitKey(1) == ord('q'):
         return None
 
@@ -88,16 +82,8 @@ def how_similar(img1, img2):
     m = cv.mean(img)[0]
     return 255-m
 
-def get_letters_and_locations(video=False, cap=None):
-    if not cap:
-        print("capture frame")
-        cap = cv.VideoCapture(-1)
-        ret, frame = cap.read()
-        cap.release()
-        print("Done Capturing")
-    else:
-        ret, frame = cap.read()
-
+def get_letters_and_locations(video=False):
+    ret, frame = cap.read()
     #mask = cv.imread('mask_2.png',0)
 
     if not ret:
@@ -160,7 +146,6 @@ def get_letters_and_locations(video=False, cap=None):
             #res = cv.matchTemplate(im,letter_template,cv.TM_CCORR_NORMED)
             #score = res[0][0]
             score = how_similar(im, letter_template)
-            print(letter, score)
             if score > best_score:
                 best_score = score
                 best_match = letter
@@ -189,6 +174,5 @@ def get_letters_and_locations(video=False, cap=None):
 
 
 if __name__ == "__main__":
-    cap = cv.VideoCapture(-1)
     while True:
-        get_letters_and_locations(video=True, cap=cap)
+        get_letters_and_locations(video=True)

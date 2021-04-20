@@ -52,8 +52,9 @@ while True:
     letters = [l[0] for l in letters_and_locations]
     print(letters)
     words = search_dictionary(letters, three_letters)
-
+    print(words)
     for word in words:
+        print(word)
         tap_out_word(word, letters_and_locations)
         if len(word) == len(letters):
             bot.move_to(x = 100)
