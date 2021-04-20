@@ -61,4 +61,5 @@ while True:
                 break
     else:
         print("We got here because we failed to find a word. Here are the words we tried\n\n", words)
+        bot.move_to(x = 100)
     

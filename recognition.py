@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 import imutils
+import math
 
 def get_template(letter): #load the template image and crop it.
     img = cv.imread('letters/'+letter+'.PNG', 0)
@@ -13,6 +14,8 @@ def get_template(letter): #load the template image and crop it.
     bx, by, bw, bh = cv.boundingRect(contour)
     img = img[by:by+bh, bx:bx+bw]
     resized = cv.resize(img, (50, 50), interpolation = cv.INTER_AREA)
+    if letter == "S" or letter == "F":
+        cv.imwrite("template_"+str(letter)+".png", resized)
     return resized
 
 
@@ -30,8 +33,6 @@ def next_level():
     debug += 1
     next_level_template = cv.imread('level_3.png',0)
     collect_template = cv.imread('collect.png',0)
-
-
     ret, frame = cap.read()
     cap.release()
 
@@ -57,9 +58,11 @@ def next_level():
             return None
     
     bottom_right = (top_left[0] + w, top_left[1] + h)
+    print("saving an image?")
     cv.rectangle(gray,top_left, bottom_right, 255, 2)
     cv.imwrite("next_level_"+str(debug)+".png", gray)
-
+    print("done saving image")
+    
     return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
 
@@ -80,15 +83,22 @@ def show_image(img):
     if cv.waitKey(1) == ord('q'):
         return None
 
+def how_similar(img1, img2):
+    img = cv.bitwise_xor(img1, img2)
+    m = cv.mean(img)[0]
+    return 255-m
+
 def get_letters_and_locations(video=False, cap=None):
-    if not cap:    
+    if not cap:
+        print("capture frame")
         cap = cv.VideoCapture(-1)
         ret, frame = cap.read()
         cap.release()
+        print("Done Capturing")
     else:
         ret, frame = cap.read()
 
-    mask = cv.imread('mask_2.png',0)
+    #mask = cv.imread('mask_2.png',0)
 
     if not ret:
         print("no frame")
@@ -113,8 +123,8 @@ def get_letters_and_locations(video=False, cap=None):
     
     threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
     
-    mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
-    threshed = cv.bitwise_or(threshed, mask)
+    #mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
+    #threshed = cv.bitwise_or(threshed, mask)
 
     
     inverted = cv.bitwise_not(threshed)
@@ -126,10 +136,7 @@ def get_letters_and_locations(video=False, cap=None):
     
     game_letters = []
     
-    print("******")
-
     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
-    
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
         if bh < 18: continue #too small
@@ -137,36 +144,39 @@ def get_letters_and_locations(video=False, cap=None):
 
         x, y = bx+(bw/2), by+(bh/2) #center of contour bounding box
 
-        dx, dy = (crop_w/2)-dx, (crop_h/2)-dy
+        dx, dy = (crop_w/2)-x, (crop_h/2)-y
         dm = math.sqrt(dx * dx + dy * dy)
 
         if dm > (crop_w / 2) - 5: #this filters out anything thats not in the bounding circle. Similar to the mask.
             continue
-
-        cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2)
-
+                        
         im = threshed[by:by+bh, bx:bx+bw]
         im = cv.resize(im, (50, 50), interpolation = cv.INTER_AREA)
+     
         best_match = "A"
         best_score = 0
         for letter, letter_template in letter_template_pairs:
             #template matching
-            res = cv.matchTemplate(im,letter_template,cv.TM_CCOEFF_NORMED)
-            score = res[0][0]
+            #res = cv.matchTemplate(im,letter_template,cv.TM_CCORR_NORMED)
+            #score = res[0][0]
+            score = how_similar(im, letter_template)
+            print(letter, score)
             if score > best_score:
                 best_score = score
                 best_match = letter
         location = (x+crop_x, y+crop_y)
-        if best_score > 0.40:    
-            game_letters.append((best_match, location))
-        elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
-            area = cv.contourArea(contour)
-            rect_area = bw*bh
-            extent = float(area)/rect_area
-            if extent > 0.35:
-                game_letters.append(("I", location))
-        else:
-            print("Can't figure out what the letter is..")
+        #if best_score > 0.40:
+        game_letters.append((best_match, location))
+        #elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
+        #    area = cv.contourArea(contour)
+        #    rect_area = bw*bh
+        #    extent = float(area)/rect_area
+        #    if extent > 0.35:
+        #        game_letters.append(("I", location))
+        #else:
+        #    print("Can't figure out what the letter is..")
+        if video:
+            cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2) #make sure this is at the end.
             
     if video:
         show_image(threshed)
