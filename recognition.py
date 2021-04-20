@@ -72,8 +72,8 @@ def get_circle_coord(img):
         return None
 
     for i in circles[0,:]:
-        # draw the outer circle
         return i
+
 
 def show_image(img):
     cv.imshow('image', img)
@@ -132,8 +132,17 @@ def get_letters_and_locations(video=False, cap=None):
     
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
-        if bh < 20: continue #too small
+        if bh < 18: continue #too small
         if bw > 45 or bh > 30: continue # too big
+
+        x, y = bx+(bw/2), by+(bh/2) #center of contour bounding box
+
+        dx, dy = (crop_w/2)-dx, (crop_h/2)-dy
+        dm = math.sqrt(dx * dx + dy * dy)
+
+        if dm > (crop_w / 2) - 5: #this filters out anything thats not in the bounding circle. Similar to the mask.
+            continue
+
         cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2)
 
         im = threshed[by:by+bh, bx:bx+bw]
@@ -147,16 +156,18 @@ def get_letters_and_locations(video=False, cap=None):
             if score > best_score:
                 best_score = score
                 best_match = letter
-        if best_score > 0.45:
-            location = (bx+(bw/2)+crop_x, by+(bh/2)+crop_y)
+        location = (x+crop_x, y+crop_y)
+        if best_score > 0.40:    
             game_letters.append((best_match, location))
         elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
             area = cv.contourArea(contour)
             rect_area = bw*bh
             extent = float(area)/rect_area
-            if extent > 0.4:
-                location = (bx+(bw/2)+crop_x, by+(bh/2)+crop_y)
+            if extent > 0.35:
                 game_letters.append(("I", location))
+        else:
+            print("Can't figure out what the letter is..")
+            
     if video:
         show_image(threshed)
         print(game_letters)
