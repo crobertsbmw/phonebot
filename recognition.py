@@ -98,6 +98,7 @@ def get_letters_and_locations(video=False, cap=None):
     coord = get_circle_coord(gray)
     try:    
         x, y, r = coord
+        r = r-1
         crop_x, crop_y, crop_w, crop_h = x-r, y-r, r*2, r*2
         gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     except:
@@ -105,29 +106,35 @@ def get_letters_and_locations(video=False, cap=None):
             show_image(gray)
         return None
 
-
+    
     m = cv.mean(gray)[0]
     if m < 160:
         gray = cv.bitwise_not(gray)
-
+    
     threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
-
+    
     mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
     threshed = cv.bitwise_or(threshed, mask)
 
+    
     inverted = cv.bitwise_not(threshed)
+
     cnts, heirarchy = cv.findContours(inverted, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     #cnts = imutils.grab_contours(cnts)
     
     contours = [c for c in cnts if cv.boundingRect(c)[3] > 15]
     
     game_letters = []
+    
+    print("******")
 
     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
+    
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
-        if bh < 15: continue #too small
-        if bw > 50 or bh > 50: continue # too big
+        if bh < 20: continue #too small
+        if bw > 45 or bh > 30: continue # too big
+        cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2)
 
         im = threshed[by:by+bh, bx:bx+bw]
         im = cv.resize(im, (50, 50), interpolation = cv.INTER_AREA)
@@ -143,6 +150,13 @@ def get_letters_and_locations(video=False, cap=None):
         if best_score > 0.45:
             location = (bx+(bw/2)+crop_x, by+(bh/2)+crop_y)
             game_letters.append((best_match, location))
+        elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
+            area = cv.contourArea(contour)
+            rect_area = bw*bh
+            extent = float(area)/rect_area
+            if extent > 0.4:
+                location = (bx+(bw/2)+crop_x, by+(bh/2)+crop_y)
+                game_letters.append(("I", location))
     if video:
         show_image(threshed)
         print(game_letters)

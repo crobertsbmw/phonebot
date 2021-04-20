@@ -32,21 +32,7 @@ def tap_btn(location):
     x, y = camera_to_bot_coordinates(location)
     bot.move_to(x, y)
     bot.tap()
-'''
-def camera_to_bot_coordinates(location):
-    bot_min_x = 112
-    bot_bottom_y = 129
-    bot_max_x = 180
-    bot_top_y = 230
-    cam_min_x = 215
-    cam_max_x = 425
-    cam_top_y = 82
-    cam_bottom_y = 390
-    x, y = location
-    new_x = (x-cam_min_x) / (cam_max_x-cam_min_x) * (bot_max_x-bot_min_x) + bot_min_x
-    new_y = (y-cam_bottom_y) / (cam_top_y-cam_bottom_y) * (bot_top_y-bot_bottom_y) + bot_bottom_y
-    return new_x, new_y
-'''
+    
 while True:
     level = next_level()
     if level:
@@ -64,11 +50,11 @@ while True:
         continue
 
     letters = [l[0] for l in letters_and_locations]
+    print(letters)
     words = search_dictionary(letters, three_letters)
 
     for word in words:
         tap_out_word(word, letters_and_locations)
-        time.sleep(1.0)
         if len(word) == len(letters):
             bot.move_to(x = 100)
             if not get_letters_and_locations():

@@ -1,9 +1,9 @@
-import cv2 as cv
-from phonebot import PhoneBot
-
-x1, x2, y1, y2 = 125, 160, 150, 220
-
 def calibrate():
+    import cv2 as cv
+    from phonebot import PhoneBot
+    
+    x1, x2, y1, y2 = 125, 160, 150, 220
+
     bot = PhoneBot()
     bot.connect()
     bot.home()
@@ -52,12 +52,12 @@ def calibrate():
         if points:
             points.sort(key = lambda x: x[0])
             #sort by the x values. Then average the first and second. Then the second and third
-            x_min = (points[0][0] + points[1][0]) / 2
-            x_max = (points[2][0] + points[3][0]) / 2
+            x_min = (points[0][0] + points[1][0]) // 2
+            x_max = (points[2][0] + points[3][0]) // 2
             
             points.sort(key = lambda x: x[1])
-            y_min = (points[0][1] + points[1][1]) / 2
-            y_max = (points[2][1] + points[3][1]) / 2
+            y_min = (points[0][1] + points[1][1]) // 2
+            y_max = (points[2][1] + points[3][1]) // 2
           
             with open("calibration_constants.txt", "w") as f:
                 f.write("{}, {}, {}, {}, {}, {}, {}, {}".format(x1, x2, y2, y1, x_min, x_max, y_min, y_max))
@@ -74,3 +74,7 @@ def camera_to_bot_coordinates(location):
     new_x = (x-cam_min_x) / (cam_max_x-cam_min_x) * (bot_max_x-bot_min_x) + bot_min_x
     new_y = (y-cam_bottom_y) / (cam_top_y-cam_bottom_y) * (bot_top_y-bot_bottom_y) + bot_bottom_y
     return new_x, new_y
+
+
+if __name__ == "__main__":
+    calibrate()

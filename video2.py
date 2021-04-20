@@ -51,6 +51,7 @@ while True:
     # gray = cv.bilateralFilter(gray,7,75,75)
     # gray = cv.GaussianBlur(gray,(5,5),0)
     cv.imshow('image2', gray)
+
     crop_x, crop_y, crop_w, crop_h = 255, 235, 125, 125
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     gray = cv.bilateralFilter(gray,7,75,75)
@@ -70,11 +71,12 @@ while True:
     game_letters = []
 
     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
+    print("****")
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
         if bh < 15: continue #too small
         if bw > 50 or bh > 50: continue # too big
-
+        print(bw, bh)
         im = threshed[by:by+bh, bx:bx+bw]
         im = cv.resize(im, (50, 50), interpolation = cv.INTER_AREA)
         best_match = "A"
