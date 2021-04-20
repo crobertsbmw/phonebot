@@ -8,7 +8,6 @@ class PhoneBot:
     
     def command(self, command):
         self.conn.write(str.encode(command+"\n"))
-        time.sleep(0.1)
         while True:
             line = self.conn.readline()
             print(line)

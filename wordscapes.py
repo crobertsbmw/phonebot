@@ -1,6 +1,7 @@
 from phonebot import PhoneBot
 from recognition import get_letters_and_locations, next_level, can_have_three_letters
 from dictionary import search_dictionary
+from calibrator import camera_to_bot_coordinates
 import time
 
 bot = PhoneBot()
@@ -31,7 +32,7 @@ def tap_btn(location):
     x, y = camera_to_bot_coordinates(location)
     bot.move_to(x, y)
     bot.tap()
-
+'''
 def camera_to_bot_coordinates(location):
     bot_min_x = 112
     bot_bottom_y = 129
@@ -45,8 +46,7 @@ def camera_to_bot_coordinates(location):
     new_x = (x-cam_min_x) / (cam_max_x-cam_min_x) * (bot_max_x-bot_min_x) + bot_min_x
     new_y = (y-cam_bottom_y) / (cam_top_y-cam_bottom_y) * (bot_top_y-bot_bottom_y) + bot_bottom_y
     return new_x, new_y
-    
-print("KICKING OFF")
+'''
 while True:
     level = next_level()
     if level:
