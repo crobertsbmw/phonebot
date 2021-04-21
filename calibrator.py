@@ -60,7 +60,7 @@ def calibrate():
             y_max = (points[2][1] + points[3][1]) // 2
           
             with open("calibration_constants.txt", "w") as f:
-                f.write("{}, {}, {}, {}, {}, {}, {}, {}".format(x1, x2, y2, y1, x_min, x_max, y_min, y_max))
+                f.write("{}, {}, {}, {}, {}, {}, {}, {}".format(x1, x2, y2, y1, int(x_min), int(x_max), int(y_min), int(y_max)))
                     
         if cv.waitKey(1) == ord('q'):
             break

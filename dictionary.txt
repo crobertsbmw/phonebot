@@ -7043,6 +7043,7 @@ balustered
 balusters
 balustrade
 balustrades
+bam
 bambino
 bambinos
 bamboo
@@ -30227,6 +30228,7 @@ eductors
 educts
 edward
 edwards
+eek
 eel
 eelgrass
 eelgrasses
@@ -70583,6 +70585,7 @@ piazzas
 piazze
 pibroch
 pibrochs
+pic
 pica
 picador
 picadores

@@ -51,7 +51,7 @@ while True:
 
     letters = [l[0] for l in letters_and_locations]
     letters.sort()
-    if last_letters == letters:
+    if remaining_words and last_letters == letters:
         words = remaining_words
     else:
         words = search_dictionary(letters, three_letters)

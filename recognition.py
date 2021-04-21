@@ -3,7 +3,7 @@ import numpy as np
 import cv2 as cv
 import math
 import time
-cap = cv.VideoCapture(-1)
+
 DEBUG_VIDEO = False
 
 def get_template(letter): #load the template image and crop it.
@@ -28,8 +28,10 @@ def can_have_three_letters():
     return True
 
 def next_level():
+    cap = cv.VideoCapture(-1)
     next_level_template = cv.imread('level_3.png',0)
     ret, frame = cap.read()
+    cap.release()
 
     if not ret:
         print("no frame")
@@ -86,14 +88,6 @@ def how_similar(img1, img2):
     return 255-m
 
 def get_letters_and_locations_20x():
-    for i in range(0,50):
-        ret, frame = cap.read()
-        if i == 0:
-            cv.imwrite("debug_1.png", frame)
-        elif i == 40:
-            cv.imwrite("debug_40.png", frame)
-        #prime the camera
-        
     attempts = [get_letters_and_locations() for x in range(20)]
     attempts = [x for x in attempts if x]
     if len(attempts) < 2:
@@ -114,9 +108,28 @@ def get_letters_and_locations_20x():
         if letters == best_option:
             return l_and_l
 
-
+def record_video():
+    cap = cv.VideoCapture(-1)
+    fourcc = cv.VideoWriter_fourcc(*'MJPG')
+    out = cv.VideoWriter('video.mp4', fourcc, 20.0, (640,  480))
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            print("Can't receive frame (stream end?). Exiting ...")
+            break
+        # write the flipped frame
+        out.write(frame)
+        cv.imshow('frame', frame)
+        if cv.waitKey(1) == ord('q'):
+            break
+    cap.release()
+    out.release()
+    cv.destroyAllWindows()
+    
 def get_letters_and_locations():
+    cap = cv.VideoCapture(-1)
     ret, frame = cap.read()
+    cap.release()
     #mask = cv.imread('mask_2.png',0)
 
     if not ret:
@@ -140,10 +153,13 @@ def get_letters_and_locations():
     m = cv.mean(gray)[0]
     if m < 160:
         gray = cv.bitwise_not(gray)
-    
-    #If it's not working, then we may need to change this back to 2 for the m>160 case.
-    threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,4)
+        ret,threshed = cv.threshold(gray,25,255,cv.THRESH_BINARY)
+    else:
+        threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+   
+
     #show_image(threshed)
+    show_image(threshed)
 
     #mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
     #threshed = cv.bitwise_or(threshed, mask)
@@ -186,7 +202,6 @@ def get_letters_and_locations():
                 best_match = letter
         location = (x+crop_x, y+crop_y)
         #if best_score > 0.40:
-        print(best_match, dm)
         game_letters.append((best_match, location))
         #elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
         #    area = cv.contourArea(contour)
@@ -201,7 +216,6 @@ def get_letters_and_locations():
 
 
     if DEBUG_VIDEO:
-        show_image(threshed)
         print(game_letters)
         
 
@@ -215,4 +229,4 @@ def get_letters_and_locations():
 if __name__ == "__main__":
     DEBUG_VIDEO = True
     while True:        
-        get_letters_and_locations()
+        record_video()
