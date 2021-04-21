@@ -32,13 +32,15 @@ def tap_btn(location):
     x, y = camera_to_bot_coordinates(location)
     bot.move_to(x, y)
     bot.tap()
-    
+
+last_letters = []
+remaining_words = []
 while True:
     level = next_level()
     if level:
         print("Clicking next level")
         tap_btn(level)
-        bot.move_to(x = 100)
+        bot.move_to(x = 50)
 
     three_letters = can_have_three_letters()
     letters_and_locations = get_letters_and_locations_20x()
@@ -48,17 +50,23 @@ while True:
         continue
 
     letters = [l[0] for l in letters_and_locations]
-    print(letters)
-    words = search_dictionary(letters, three_letters)
+    letters.sort()
+    if last_letters == letters:
+        words = remaining_words
+    else:
+        words = search_dictionary(letters, three_letters)
+    last_letters = letters
+    remaining_words = words[:]
     print(words)
     for word in words:
         print(word)
         tap_out_word(word, letters_and_locations)
+        remaining_words.remove(word)
         if len(word) == len(letters):
-            bot.move_to(x = 100)
+            bot.move_to(x = 50)
             if not get_letters_and_locations_20x():
                 break
     else:
         print("We got here because we failed to find a word. Here are the words we tried\n\n", words)
-        bot.move_to(x = 100)
+        bot.move_to(x = 50)
     

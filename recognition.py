@@ -46,7 +46,7 @@ def next_level():
         next_level_template = cv.imread('level_2.png',0)
         res = cv.matchTemplate(threshed,next_level_template,cv.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-        if max_level < 0.60:
+        if max_val < 0.60:
             collect_template = cv.imread('collect.png',0)
             res = cv.matchTemplate(threshed,collect_template,cv.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
