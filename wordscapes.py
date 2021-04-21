@@ -1,5 +1,5 @@
 from phonebot import PhoneBot
-from recognition import get_letters_and_locations, next_level, can_have_three_letters
+from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters
 from dictionary import search_dictionary
 from calibrator import camera_to_bot_coordinates
 import time
@@ -40,12 +40,10 @@ while True:
         tap_btn(level)
         bot.move_to(x = 100)
 
-    time.sleep(2.5)
-
     three_letters = can_have_three_letters()
-    letters_and_locations = get_letters_and_locations()
+    letters_and_locations = get_letters_and_locations_20x()
 
-    if not letters_and_locations or len(letters_and_locations) < 2:
+    if not letters_and_locations:
         print("No Letters Found")
         continue
 
@@ -58,7 +56,7 @@ while True:
         tap_out_word(word, letters_and_locations)
         if len(word) == len(letters):
             bot.move_to(x = 100)
-            if not get_letters_and_locations():
+            if not get_letters_and_locations_20x():
                 break
     else:
         print("We got here because we failed to find a word. Here are the words we tried\n\n", words)

@@ -28,7 +28,6 @@ def can_have_three_letters():
 
 def next_level():
     next_level_template = cv.imread('level_3.png',0)
-    collect_template = cv.imread('collect.png',0)
     ret, frame = cap.read()
 
     if not ret:
@@ -43,14 +42,17 @@ def next_level():
     res = cv.matchTemplate(threshed,next_level_template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
     w, h = next_level_template.shape[::-1]
-
     if max_val < 0.60:
-        res = cv.matchTemplate(threshed,collect_template,cv.TM_CCOEFF_NORMED)
+        next_level_template = cv.imread('level_2.png',0)
+        res = cv.matchTemplate(threshed,next_level_template,cv.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-        w, h = collect_template.shape[::-1]
-
-        if max_val < 0.60:
-            return None
+        if max_level < 0.60:
+            collect_template = cv.imread('collect.png',0)
+            res = cv.matchTemplate(threshed,collect_template,cv.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+            w, h = collect_template.shape[::-1]
+            if max_val < 0.60:
+                return None
     
     bottom_right = (top_left[0] + w, top_left[1] + h)
     #cv.rectangle(gray,top_left, bottom_right, 255, 2)
@@ -65,15 +67,14 @@ def get_circle_coord(img):
         circles = np.uint16(np.around(circles))
     except:
         return None
-
+    
     for i in circles[0,:]:
+        #cv.circle(img,(i[0],i[1]),i[2]-10,(0,255,0),2)
+        #cv.circle(img,(i[0],i[1]),2,(0,0,255),3)
         return i
-
 
 def show_image(img):
     cv.imshow('image', img)
-    cv.imwrite("TestImage.png", img)
-    alert("error time")
     if cv.waitKey(1) == ord('q'):
         return None
 
@@ -82,6 +83,36 @@ def how_similar(img1, img2):
     m = cv.mean(img)[0]
     return 255-m
 
+def get_letters_and_locations_20x(video=False):
+    for i in range(0,50):
+        ret, frame = cap.read()
+        if i == 0:
+            cv.imwrite("debug_1.png", frame)
+        elif i == 40:
+            cv.imwrite("debug_40.png", frame)
+        #prime the camera
+        
+    attempts = [get_letters_and_locations(video=video) for x in range(20)]
+    attempts = [x for x in attempts if x]
+    if len(attempts) < 2:
+        return None
+    attempts = [sorted(x, key=lambda x:x[0]) for x in attempts]
+    letters = ["".join([x[0] for x in attempt]) for attempt in attempts]
+    
+    options = list(set(letters))
+    best_option, best_option_count = options[0], 0
+    for option in options:
+        count = letters.count(option)
+        print(option, count)
+        if count > best_option_count:
+            best_option = option
+            best_option_count = count
+    for l_and_l in attempts:
+        letters = "".join([x[0] for x in l_and_l])
+        if letters == best_option:
+            return l_and_l
+
+
 def get_letters_and_locations(video=False):
     ret, frame = cap.read()
     #mask = cv.imread('mask_2.png',0)
@@ -89,9 +120,11 @@ def get_letters_and_locations(video=False):
     if not ret:
         print("no frame")
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    gray = cv.bilateralFilter(gray,7,75,75)
-
+    
     coord = get_circle_coord(gray)
+    
+    gray = cv.bilateralFilter(gray,7,75,75)
+    
     try:    
         x, y, r = coord
         r = r-1
@@ -133,7 +166,7 @@ def get_letters_and_locations(video=False):
         dx, dy = (crop_w/2)-x, (crop_h/2)-y
         dm = math.sqrt(dx * dx + dy * dy)
 
-        if dm > (crop_w / 2) - 5: #this filters out anything thats not in the bounding circle. Similar to the mask.
+        if dm > (crop_w / 2) - 8: #this filters out anything thats not in the bounding circle. Similar to the mask.
             continue
                         
         im = threshed[by:by+bh, bx:bx+bw]
@@ -169,6 +202,8 @@ def get_letters_and_locations(video=False):
         
 
     if len(game_letters) < 3:
+        print("WRITE NO LETTERS")
+        cv.imwrite("NoLetters.png", threshed)
         return None
     return game_letters
 

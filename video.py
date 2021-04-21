@@ -23,7 +23,8 @@ while True:
     # gray = cv.GaussianBlur(gray,(5,5),0)
     
     #crop_x, crop_y, crop_w, crop_h = 200, 120, 260, 235
-    crop_x, crop_y, crop_w, crop_h = 274, 280, 85, 28
+    #crop_x, crop_y, crop_w, crop_h = 274, 280, 85, 28
+    crop_x, crop_y, crop_w, crop_h = 268, 280, 60, 25
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     gray = cv.bitwise_not(gray)
 
@@ -32,20 +33,20 @@ while True:
 
     ret,threshed = cv.threshold(gray,30,255,cv.THRESH_BINARY)
 
-    cv.imwrite("collect.png", threshed)
+    cv.imwrite("level_2.png", threshed)
 
     cv.namedWindow('image')
     cv.setMouseCallback('image',draw_circle)
 
     
-    #res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
-    #min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+    res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
 
 
-    #bottom_right = (top_left[0] + w, top_left[1] + h)
+    bottom_right = (top_left[0] + w, top_left[1] + h)
 
-    #cv.rectangle(gray,top_left, bottom_right, 255, 2)
-    #print(max_val)
+    cv.rectangle(gray,top_left, bottom_right, 255, 2)
+    print(max_val)
 
 
 

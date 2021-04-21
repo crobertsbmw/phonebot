@@ -10,9 +10,10 @@ class PhoneBot:
         self.conn.write(str.encode(command+"\n"))
         while True:
             line = self.conn.readline()
-            print(line)
             if line == b'ok\n':
                 break
+            print("BOT", line)
+
 
     def connect(self):
         ports = [str(p).split(" - ")[0] for p in list_ports.comports()]
