@@ -1,5 +1,5 @@
-from phonebot import PhoneBot
 from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters
+from phonebot import PhoneBot
 from dictionary import search_dictionary
 from calibrator import camera_to_bot_coordinates
 import time

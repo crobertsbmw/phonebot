@@ -1,9 +1,10 @@
+import imutils
 import numpy as np
 import cv2 as cv
-import imutils
 import math
 import time
 cap = cv.VideoCapture(-1)
+DEBUG_VIDEO = False
 
 def get_template(letter): #load the template image and crop it.
     img = cv.imread('letters/'+letter+'.PNG', 0)
@@ -74,6 +75,7 @@ def get_circle_coord(img):
         return i
 
 def show_image(img):
+    if not DEBUG_VIDEO: return
     cv.imshow('image', img)
     if cv.waitKey(1) == ord('q'):
         return None
@@ -83,7 +85,7 @@ def how_similar(img1, img2):
     m = cv.mean(img)[0]
     return 255-m
 
-def get_letters_and_locations_20x(video=False):
+def get_letters_and_locations_20x():
     for i in range(0,50):
         ret, frame = cap.read()
         if i == 0:
@@ -92,7 +94,7 @@ def get_letters_and_locations_20x(video=False):
             cv.imwrite("debug_40.png", frame)
         #prime the camera
         
-    attempts = [get_letters_and_locations(video=video) for x in range(20)]
+    attempts = [get_letters_and_locations() for x in range(20)]
     attempts = [x for x in attempts if x]
     if len(attempts) < 2:
         return None
@@ -113,7 +115,7 @@ def get_letters_and_locations_20x(video=False):
             return l_and_l
 
 
-def get_letters_and_locations(video=False):
+def get_letters_and_locations():
     ret, frame = cap.read()
     #mask = cv.imread('mask_2.png',0)
 
@@ -131,8 +133,7 @@ def get_letters_and_locations(video=False):
         crop_x, crop_y, crop_w, crop_h = x-r, y-r, r*2, r*2
         gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     except:
-        if video:
-            show_image(gray)
+        show_image(gray)
         return None
 
     
@@ -140,12 +141,13 @@ def get_letters_and_locations(video=False):
     if m < 160:
         gray = cv.bitwise_not(gray)
     
-    threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
-    
+    #If it's not working, then we may need to change this back to 2 for the m>160 case.
+    threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,4)
+    #show_image(threshed)
+
     #mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
     #threshed = cv.bitwise_or(threshed, mask)
 
-    
     inverted = cv.bitwise_not(threshed)
 
     cnts, heirarchy = cv.findContours(inverted, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
@@ -165,8 +167,8 @@ def get_letters_and_locations(video=False):
 
         dx, dy = (crop_w/2)-x, (crop_h/2)-y
         dm = math.sqrt(dx * dx + dy * dy)
-
-        if dm > (crop_w / 2) - 8: #this filters out anything thats not in the bounding circle. Similar to the mask.
+        
+        if dm > (crop_w / 2) - 8 or dm < 35: #this filters out anything thats not on inside edge of the bounding circle. Replaces the mask
             continue
                         
         im = threshed[by:by+bh, bx:bx+bw]
@@ -184,6 +186,7 @@ def get_letters_and_locations(video=False):
                 best_match = letter
         location = (x+crop_x, y+crop_y)
         #if best_score > 0.40:
+        print(best_match, dm)
         game_letters.append((best_match, location))
         #elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
         #    area = cv.contourArea(contour)
@@ -193,10 +196,11 @@ def get_letters_and_locations(video=False):
         #        game_letters.append(("I", location))
         #else:
         #    print("Can't figure out what the letter is..")
-        if video:
+        if DEBUG_VIDEO:
             cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2) #make sure this is at the end.
-            
-    if video:
+
+
+    if DEBUG_VIDEO:
         show_image(threshed)
         print(game_letters)
         
@@ -209,5 +213,6 @@ def get_letters_and_locations(video=False):
 
 
 if __name__ == "__main__":
-    while True:
-        get_letters_and_locations(video=True)
+    DEBUG_VIDEO = True
+    while True:        
+        get_letters_and_locations()

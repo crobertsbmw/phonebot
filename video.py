@@ -33,7 +33,7 @@ while True:
 
     ret,threshed = cv.threshold(gray,30,255,cv.THRESH_BINARY)
 
-    cv.imwrite("level_2.png", threshed)
+    #cv.imwrite("level_1.png", threshed)
 
     cv.namedWindow('image')
     cv.setMouseCallback('image',draw_circle)
