@@ -6,11 +6,11 @@ with open('dictionary.txt', "r") as file_object:
     dictionary = data.split("\n")
     dictionary = [d.upper() for d in dictionary if len(d) > 2]
 
-with open('dictionary_2.txt', "r") as file_object:
+with open('dictionary_backup.txt', "r") as file_object:
     # read file content
     data2 = file_object.read()
     dictionary2 = data2.split("\n")
-    dictionary2 = [d.upper() for d in dictionary2 if len(d) > 2]
+    dictionary2 = [d.upper().strip() for d in dictionary2 if len(d) > 2]
 
 
 def search_backup_dictionary(letters, three_letters=True):
