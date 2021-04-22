@@ -68,5 +68,7 @@ while True:
                 break
     else:
         print("We got here because we failed to find a word. Here are the words we tried\n\n", words)
+        remaining_words += search_backup_dictionary(letters)
+        remaining_words = list(set(remaining_words))
         bot.move_to(x = 50)
     
