@@ -45,16 +45,16 @@ def next_level():
     res = cv.matchTemplate(threshed,next_level_template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
     w, h = next_level_template.shape[::-1]
-    if max_val < 0.60:
+    if max_val < 0.50:
         next_level_template = cv.imread('level_2.png',0)
         res = cv.matchTemplate(threshed,next_level_template,cv.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-        if max_val < 0.60:
+        if max_val < 0.50:
             collect_template = cv.imread('collect.png',0)
             res = cv.matchTemplate(threshed,collect_template,cv.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
             w, h = collect_template.shape[::-1]
-            if max_val < 0.60:
+            if max_val < 0.50:
                 return None
     
     bottom_right = (top_left[0] + w, top_left[1] + h)
@@ -115,7 +115,7 @@ def record_video(frame=None):
     video_writer = cv.VideoWriter('video.mp4', fourcc, 20.0, (640,  480))
     video_writer.write(frame)
     if cv.waitKey(1) == ord('q'):
-        break
+        return
 
     
 def get_letters_and_locations():
@@ -182,16 +182,26 @@ def get_letters_and_locations():
      
         best_match = "A"
         best_score = 0
+        T_template = None
+        I_template = None
         for letter, letter_template in letter_template_pairs:
             #template matching
             #res = cv.matchTemplate(im,letter_template,cv.TM_CCORR_NORMED)
             #score = res[0][0]
+            #if letter == "T":
+            #    T_template = letter_template
+            #if letter == "I":
+            #    I_template = letter_template
             score = how_similar(im, letter_template)
             if score > best_score:
                 best_score = score
                 best_match = letter
         location = (x+crop_x, y+crop_y)
         #if best_score > 0.40:
+        #if best_match == "I":
+        #    cv.imwrite("debug1.png", im)
+        #    cv.imwrite("debug2.png", T_template)
+        #    cv.imwrite("debug3.png", I_template)
         game_letters.append((best_match, location))
         #elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
         #    area = cv.contourArea(contour)
@@ -219,4 +229,4 @@ def get_letters_and_locations():
 if __name__ == "__main__":
     DEBUG_VIDEO = True
     while True:        
-        record_video()
+        get_letters_and_locations()

@@ -4,7 +4,7 @@ import imutils
 
 cap = cv.VideoCapture(-1)
 
-template = cv.imread('level_3.png',0)
+template = cv.imread('level_2.png',0)
 w, h = template.shape[::-1]
 
 
@@ -22,9 +22,9 @@ while True:
     # gray = cv.bilateralFilter(gray,7,75,75)
     # gray = cv.GaussianBlur(gray,(5,5),0)
     
-    #crop_x, crop_y, crop_w, crop_h = 200, 120, 260, 235
+    crop_x, crop_y, crop_w, crop_h = 200, 120, 260, 235
     #crop_x, crop_y, crop_w, crop_h = 274, 280, 85, 28
-    crop_x, crop_y, crop_w, crop_h = 268, 280, 60, 25
+    #crop_x, crop_y, crop_w, crop_h = 268, 280, 60, 25
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     gray = cv.bitwise_not(gray)
 
