@@ -5,6 +5,7 @@ import math
 import time
 
 DEBUG_VIDEO = False
+cap = cv.VideoCapture(-1)
 
 def get_template(letter): #load the template image and crop it.
     img = cv.imread('letters/'+letter+'.PNG', 0)
@@ -28,10 +29,9 @@ def can_have_three_letters():
     return True
 
 def next_level():
-    cap = cv.VideoCapture(-1)
+    
     next_level_template = cv.imread('level_3.png',0)
     ret, frame = cap.read()
-    cap.release()
 
     if not ret:
         print("no frame")
@@ -108,28 +108,18 @@ def get_letters_and_locations_20x():
         if letters == best_option:
             return l_and_l
 
-def record_video():
-    cap = cv.VideoCapture(-1)
-    fourcc = cv.VideoWriter_fourcc(*'MJPG')
-    out = cv.VideoWriter('video.mp4', fourcc, 20.0, (640,  480))
-    while cap.isOpened():
+def record_video(frame=None):
+    if not frame:
         ret, frame = cap.read()
-        if not ret:
-            print("Can't receive frame (stream end?). Exiting ...")
-            break
-        # write the flipped frame
-        out.write(frame)
-        cv.imshow('frame', frame)
-        if cv.waitKey(1) == ord('q'):
-            break
-    cap.release()
-    out.release()
-    cv.destroyAllWindows()
+    fourcc = cv.VideoWriter_fourcc(*'MJPG')
+    video_writer = cv.VideoWriter('video.mp4', fourcc, 20.0, (640,  480))
+    video_writer.write(frame)
+    if cv.waitKey(1) == ord('q'):
+        break
+
     
 def get_letters_and_locations():
-    cap = cv.VideoCapture(-1)
     ret, frame = cap.read()
-    cap.release()
     #mask = cv.imread('mask_2.png',0)
 
     if not ret:
