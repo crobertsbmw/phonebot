@@ -17,7 +17,7 @@ def get_template(letter): #load the template image and crop it.
     contour = cnts[0]
     bx, by, bw, bh = cv.boundingRect(contour)
     img = img[by:by+bh, bx:bx+bw]
-    resized = cv.resize(img, (50, 50), interpolation = cv.INTER_AREA)
+    resized = cv.resize(img, (20, 25), interpolation = cv.INTER_AREA)
     return resized
 
 
@@ -28,8 +28,27 @@ def can_have_three_letters():
     #Fill this in.
     return True
 
-def next_level():
+def piggy_bank():
+    template = cv.imread('piggy_bank.png',0)
+    ret, frame = cap.read()
+    w, h = template.shape[::-1]
+
+    if not ret:
+        print("no frame")
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    crop_x, crop_y, crop_w, crop_h = 190, 40, 200, 200
+    gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+    res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+    show_image(threshed)
+    if max_val < 0.65:
+        return None
+    x, y = crop_x + top_left[0] + w, top_left[1] + crop_y
+    return (x+20, y-15)
+
     
+def next_level():
     next_level_template = cv.imread('level_3.png',0)
     ret, frame = cap.read()
 
@@ -59,7 +78,6 @@ def next_level():
     
     bottom_right = (top_left[0] + w, top_left[1] + h)
     #cv.rectangle(gray,top_left, bottom_right, 255, 2)
-    
     return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
 
@@ -178,7 +196,7 @@ def get_letters_and_locations():
             continue
                         
         im = threshed[by:by+bh, bx:bx+bw]
-        im = cv.resize(im, (50, 50), interpolation = cv.INTER_AREA)
+        im = cv.resize(im, (20, 25), interpolation = cv.INTER_AREA)
      
         best_match = "A"
         best_score = 0
@@ -188,20 +206,20 @@ def get_letters_and_locations():
             #template matching
             #res = cv.matchTemplate(im,letter_template,cv.TM_CCORR_NORMED)
             #score = res[0][0]
-            #if letter == "T":
-            #    T_template = letter_template
-            #if letter == "I":
-            #    I_template = letter_template
+            if letter == "F":
+                T_template = letter_template
+            if letter == "E":
+                I_template = letter_template
             score = how_similar(im, letter_template)
             if score > best_score:
                 best_score = score
                 best_match = letter
         location = (x+crop_x, y+crop_y)
         #if best_score > 0.40:
-        #if best_match == "I":
-        #    cv.imwrite("debug1.png", im)
-        #    cv.imwrite("debug2.png", T_template)
-        #    cv.imwrite("debug3.png", I_template)
+        if best_match == "F":
+            cv.imwrite("debug1.png", im)
+            cv.imwrite("debug2.png", T_template)
+            cv.imwrite("debug3.png", I_template)
         game_letters.append((best_match, location))
         #elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
         #    area = cv.contourArea(contour)
@@ -220,7 +238,6 @@ def get_letters_and_locations():
         
 
     if len(game_letters) < 3:
-        print("WRITE NO LETTERS")
         cv.imwrite("NoLetters.png", threshed)
         return None
     return game_letters
@@ -229,4 +246,4 @@ def get_letters_and_locations():
 if __name__ == "__main__":
     DEBUG_VIDEO = True
     while True:        
-        get_letters_and_locations()
+        piggy_bank()

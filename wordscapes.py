@@ -1,6 +1,6 @@
-from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters
+from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters, piggy_bank
 from phonebot import PhoneBot
-from dictionary import search_dictionary
+from dictionary import search_dictionary, search_backup_dictionary
 from calibrator import camera_to_bot_coordinates
 import time
 
@@ -41,6 +41,12 @@ while True:
         print("Clicking next level")
         tap_btn(level)
         bot.move_to(x = 50)
+    else:
+        x_btn = piggy_bank()
+        if x_btn:
+            print("click piggy bank")
+            tap_btn(x_btn)
+            bot.move_to(x=50)
 
     three_letters = can_have_three_letters()
     letters_and_locations = get_letters_and_locations_20x()
