@@ -35,12 +35,14 @@ def tap_btn(location):
 
 last_letters = []
 remaining_words = []
+stalled=False
 while True:
     level = next_level()
     if level:
         print("Clicking next level")
         tap_btn(level)
         bot.move_to(x = 50)
+        stalled = False
     else:
         x_btn = piggy_bank()
         if x_btn:
@@ -61,6 +63,10 @@ while True:
         words = remaining_words
     else:
         words = search_dictionary(letters, three_letters)
+        if stalled:
+            print("Adding backup words")
+            words += search_backup_dictionary(letters)
+            words = list(set(words))
     last_letters = letters
     remaining_words = words[:]
     print(words)
@@ -74,7 +80,6 @@ while True:
                 break
     else:
         print("We got here because we failed to find a word. Here are the words we tried\n\n", words)
-        remaining_words += search_backup_dictionary(letters)
-        remaining_words = list(set(remaining_words))
         bot.move_to(x = 50)
+        stalled = True
     
