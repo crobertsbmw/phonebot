@@ -13336,6 +13336,7 @@ cameroonian
 cameroonians
 camisole
 camisoles
+camo
 camomile
 camomiles
 camouflage
@@ -13882,6 +13883,7 @@ caravel
 caravels
 caraway
 caraways
+carb
 carbarn
 carbarns
 carbide
@@ -87964,6 +87966,7 @@ silversmiths
 silverware
 silvery
 silvester
+sim
 simian
 simians
 similar

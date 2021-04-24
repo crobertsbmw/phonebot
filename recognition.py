@@ -202,24 +202,28 @@ def get_letters_and_locations():
         best_score = 0
         T_template = None
         I_template = None
+        Z_template = None
         for letter, letter_template in letter_template_pairs:
             #template matching
             #res = cv.matchTemplate(im,letter_template,cv.TM_CCORR_NORMED)
             #score = res[0][0]
-            if letter == "F":
+            if letter == "T":
                 T_template = letter_template
-            if letter == "E":
+            if letter == "I":
                 I_template = letter_template
+            if letter == "Z":
+                Z_template = letter_template
             score = how_similar(im, letter_template)
             if score > best_score:
                 best_score = score
                 best_match = letter
         location = (x+crop_x, y+crop_y)
         #if best_score > 0.40:
-        if best_match == "F":
+        if best_match == "Z":
             cv.imwrite("debug1.png", im)
             cv.imwrite("debug2.png", T_template)
             cv.imwrite("debug3.png", I_template)
+            cv.imwrite("debug4.png", Z_template)
         game_letters.append((best_match, location))
         #elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
         #    area = cv.contourArea(contour)
@@ -246,4 +250,4 @@ def get_letters_and_locations():
 if __name__ == "__main__":
     DEBUG_VIDEO = True
     while True:        
-        piggy_bank()
+        get_letters_and_locations()
