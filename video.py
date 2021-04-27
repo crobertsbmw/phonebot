@@ -20,11 +20,15 @@ while True:
         print("no frame")
 
     
-    crop_x, crop_y, crop_w, crop_h = 225, 328, 30,29
+    #crop_x, crop_y, crop_w, crop_h = 225, 328, 30,29
     #crop_x, crop_y, crop_w, crop_h = 274, 280, 85, 28
-    #crop_x, crop_y, crop_w, crop_h = 268, 280, 60, 25
+    crop_x, crop_y, crop_w, crop_h = 263, 271, 60, 25
     frame = frame[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    
+    inverted = cv.bitwise_not(gray)
+    ret,threshed = cv.threshold(inverted,30,255,cv.THRESH_BINARY)
+    
     #gray = cv.bilateralFilter(gray,7,75,75)
     #gray = cv.GaussianBlur(gray,(5,5),0)
        
@@ -35,7 +39,7 @@ while True:
     
     #ret,threshed = cv.threshold(gray,230,255,cv.THRESH_BINARY)
 
-    cv.imwrite("no_threes.png", gray)
+    cv.imwrite("level_1.png", threshed)
 
     cv.namedWindow('image')
     cv.setMouseCallback('image',draw_circle)
@@ -50,7 +54,7 @@ while True:
     cv.rectangle(gray,top_left, bottom_right, 255, 2)
     '''
 
-    cv.imshow('image', gray)
+    cv.imshow('image', threshed)
     if cv.waitKey(1) == ord('q'):
         break
 

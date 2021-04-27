@@ -52,7 +52,7 @@ def piggy_bank():
 
     
 def next_level():
-    next_level_template = cv.imread('level_3.png',0)
+    templates = ['level_1.png', 'level_2.png', 'level_3.png', 'collect.png']
     ret, frame = cap.read()
 
     if not ret:
@@ -63,25 +63,16 @@ def next_level():
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     inverted = cv.bitwise_not(gray)
     ret,threshed = cv.threshold(inverted,30,255,cv.THRESH_BINARY)
-
-    res = cv.matchTemplate(threshed,next_level_template,cv.TM_CCOEFF_NORMED)
-    min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-    w, h = next_level_template.shape[::-1]
-    if max_val < 0.50:
-        next_level_template = cv.imread('level_2.png',0)
-        res = cv.matchTemplate(threshed,next_level_template,cv.TM_CCOEFF_NORMED)
+    show_image(threshed)
+    for t_name in templates:
+        template = cv.imread(t_name,0)
+        res = cv.matchTemplate(threshed,template,cv.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-        if max_val < 0.50:
-            collect_template = cv.imread('collect.png',0)
-            res = cv.matchTemplate(threshed,collect_template,cv.TM_CCOEFF_NORMED)
-            min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-            w, h = collect_template.shape[::-1]
-            if max_val < 0.50:
-                return None
-    
-    bottom_right = (top_left[0] + w, top_left[1] + h)
-    #cv.rectangle(gray,top_left, bottom_right, 255, 2)
-    return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
+        w, h = template.shape[::-1]
+        print(t_name, max_val)
+        if max_val > 0.50:
+            bottom_right = (top_left[0] + w, top_left[1] + h)
+            return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
 
 def get_circle_coord(img):
@@ -272,4 +263,4 @@ def get_letters_and_locations():
 if __name__ == "__main__":
     DEBUG_VIDEO = True
     while True:        
-        get_letters_and_locations()
+        next_level()
