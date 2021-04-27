@@ -22,8 +22,14 @@ letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 letter_template_pairs = [(l, get_template(l)) for l in letters]
 
 def can_have_three_letters():
-    #Fill this in.
-    return True
+    template = cv.imread('level.png',0)
+    ret, frame = cap.read()
+    crop_x, crop_y, crop_w, crop_h = 175, 275, 130, 130
+    frame = frame[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+    return max_val > 0.7 
 
 def next_level():
     template = cv.imread('level.png',0)

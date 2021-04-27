@@ -37,22 +37,22 @@ last_letters = []
 remaining_words = []
 stalled=False
 while True:
+    bot.move_to(x=50)
     level = next_level()
     if level:
         print("Clicking next level")
         tap_btn(level)
         bot.move_to(x = 50)
         stalled = False
-    else:
-        x_btn = piggy_bank()
-        if x_btn:
-            print("click piggy bank")
-            tap_btn(x_btn)
-            bot.move_to(x=50)
 
-    three_letters = can_have_three_letters()
     letters_and_locations = get_letters_and_locations_20x()
+    three_letters = can_have_three_letters()
 
+    x_btn = piggy_bank()
+    if x_btn:
+        print("click piggy bank")
+        tap_btn(x_btn)
+        
     if not letters_and_locations:
         print("No Letters Found")
         continue
@@ -70,6 +70,7 @@ while True:
     last_letters = letters
     remaining_words = words[:]
     print(words)
+    
     for word in words:
         print(word)
         tap_out_word(word, letters_and_locations)
@@ -80,6 +81,7 @@ while True:
                 break
     else:
         print("We got here because we failed to find a word. Here are the words we tried\n\n", words)
+        time.sleep(2.0)
         bot.move_to(x = 50)
         stalled = True
     
