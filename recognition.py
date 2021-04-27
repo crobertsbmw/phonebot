@@ -7,6 +7,11 @@ import time
 DEBUG_VIDEO = False
 cap = cv.VideoCapture(-1)
 
+def flush_camera():
+    for i in range(20):
+        ret, frame = cap.read()
+        
+        
 def get_template(letter): #load the template image and crop it.
     img = cv.imread('letters/'+letter+'.PNG', 0)
     ret,img = cv.threshold(img,200,255,cv.THRESH_BINARY)
@@ -176,10 +181,12 @@ def get_letters_and_locations():
         center_color = 255-m
         print(center_color)
         ret,threshed = cv.threshold(gray, center_color,255,cv.THRESH_TRUNC)
-        ret,threshed = cv.threshold(threshed,center_color-20,255,cv.THRESH_BINARY)
+        #ret,threshed = cv.threshold(threshed,center_color-20,255,cv.THRESH_BINARY) #I think the center color before was like 40, and this took it down to like 20.
+        ret,threshed = cv.threshold(threshed,center_color*2/5,255,cv.THRESH_BINARY)
         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
     else:
+        print("here")
         threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
         
 

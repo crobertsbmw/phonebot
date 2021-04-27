@@ -1,4 +1,4 @@
-from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters, piggy_bank
+from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters, piggy_bank, flush_camera
 from phonebot import PhoneBot
 from dictionary import search_dictionary, search_backup_dictionary
 from calibrator import camera_to_bot_coordinates
@@ -38,6 +38,7 @@ def tap_btn(location):
 last_letters = []
 while True:
     bot.move_to(x=50)
+    flush_camera()
     level = next_level()
     if level:
         print("Clicking next level")
@@ -75,3 +76,4 @@ while True:
         #    bot.move_to(x = 50)
         #    if not get_letters_and_locations_20x():
         #        break
+    time.sleep(2.5)
