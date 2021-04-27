@@ -1,8 +1,8 @@
 import serial
 import time
 from serial.tools import list_ports
-Z_UP = 6
-Z_DOWN = 0.8
+Z_UP = 1.6
+Z_DOWN = 0.1
 class PhoneBot:
     conn = None
     
@@ -57,5 +57,6 @@ class PhoneBot:
 
     def tap(self):
         self.tap_down()
+        time.sleep(0.1)
         self.tap_up()
 

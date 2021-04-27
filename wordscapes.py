@@ -8,6 +8,8 @@ bot = PhoneBot()
 bot.connect()
 bot.home()
 
+'''subpar, blog, merlot
+'''
 
 def tap_out_word(word, landl):
     landl = landl[:]
@@ -34,8 +36,6 @@ def tap_btn(location):
     bot.tap()
 
 last_letters = []
-remaining_words = []
-stalled=False
 while True:
     bot.move_to(x=50)
     level = next_level()
@@ -43,7 +43,6 @@ while True:
         print("Clicking next level")
         tap_btn(level)
         bot.move_to(x = 50)
-        stalled = False
 
     letters_and_locations = get_letters_and_locations_20x()
     three_letters = can_have_three_letters()
@@ -59,29 +58,20 @@ while True:
 
     letters = [l[0] for l in letters_and_locations]
     letters.sort()
-    if remaining_words and last_letters == letters:
-        words = remaining_words
-    else:
-        words = search_dictionary(letters, three_letters)
-        if stalled:
-            print("Adding backup words")
-            words += search_backup_dictionary(letters)
-            words = list(set(words))
+    
+    words = search_dictionary(letters, three_letters)
+    if last_letters == letters:
+        print("Adding backup words")
+        words += search_backup_dictionary(letters)
+        words = list(set(words))        
+        
     last_letters = letters
-    remaining_words = words[:]
     print(words)
     
     for word in words:
         print(word)
         tap_out_word(word, letters_and_locations)
-        remaining_words.remove(word)
-        if len(word) == len(letters):
-            bot.move_to(x = 50)
-            if not get_letters_and_locations_20x():
-                break
-    else:
-        print("We got here because we failed to find a word. Here are the words we tried\n\n", words)
-        time.sleep(2.0)
-        bot.move_to(x = 50)
-        stalled = True
-    
+        #if len(word) == len(letters):
+        #    bot.move_to(x = 50)
+        #    if not get_letters_and_locations_20x():
+        #        break

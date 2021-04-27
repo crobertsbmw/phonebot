@@ -22079,6 +22079,7 @@ crocheters
 crocheting
 crochets
 croci
+croc
 crock
 crocked
 crockeries
@@ -22110,7 +22111,6 @@ crooked
 crookeder
 crookedest
 crookedly
-crookedness
 crookeries
 crookery
 crooking
@@ -58664,6 +58664,7 @@ merlin
 merlins
 merlon
 merlons
+merlot
 mermaid
 mermaids
 merman
@@ -93665,6 +93666,7 @@ suborners
 suborning
 suborns
 suboxides
+subpar
 subparagraph
 subparagraphs
 subpartnership

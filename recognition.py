@@ -142,7 +142,7 @@ def can_have_three_letters():
     res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
     print(max_val)
-    return max_val < 0.8 #we want this pretty high. We don't want to accidently match 
+    return max_val < 0.85 #we want this pretty high. We don't want to accidently match 
 
 def get_letters_and_locations():
     ret, frame = cap.read()
@@ -174,9 +174,10 @@ def get_letters_and_locations():
     if m2 > m:
         gray = cv.bitwise_not(gray)
         center_color = 255-m
-        ret,threshed = cv.threshold(gray,center_color,255,cv.THRESH_TRUNC)
-        #ret,threshed = cv.threshold(gray,30,255,cv.THRESH_BINARY)
-        threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+        print(center_color)
+        ret,threshed = cv.threshold(gray, center_color,255,cv.THRESH_TRUNC)
+        ret,threshed = cv.threshold(threshed,center_color-20,255,cv.THRESH_BINARY)
+        #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
     else:
         threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
