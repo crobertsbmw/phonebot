@@ -70,7 +70,7 @@ def next_level():
         min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
         w, h = template.shape[::-1]
         print(t_name, max_val)
-        if max_val > 0.50:
+        if max_val > 0.55:
             bottom_right = (top_left[0] + w, top_left[1] + h)
             return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
@@ -173,11 +173,10 @@ def get_letters_and_locations():
         print(center_color)
         ret,threshed = cv.threshold(gray, center_color,255,cv.THRESH_TRUNC)
         #ret,threshed = cv.threshold(threshed,center_color-20,255,cv.THRESH_BINARY) #I think the center color before was like 40, and this took it down to like 20.
-        ret,threshed = cv.threshold(threshed,center_color*2/5,255,cv.THRESH_BINARY)
+        ret,threshed = cv.threshold(threshed,center_color*2/8,255,cv.THRESH_BINARY)
         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
     else:
-        print("here")
         threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
         
 
@@ -263,4 +262,4 @@ def get_letters_and_locations():
 if __name__ == "__main__":
     DEBUG_VIDEO = True
     while True:        
-        next_level()
+        get_letters_and_locations()
