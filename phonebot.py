@@ -1,7 +1,7 @@
 import serial
 import time
 from serial.tools import list_ports
-Z_UP = 1.6
+Z_UP = 2.2
 Z_DOWN = 0.1
 class PhoneBot:
     conn = None
