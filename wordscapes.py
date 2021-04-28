@@ -37,13 +37,12 @@ def tap_btn(location):
 
 last_letters = []
 while True:
-    bot.move_to(x=50)
     flush_camera()
     level = next_level()
     if level:
         print("Clicking next level")
         tap_btn(level)
-        bot.move_to(x = 50)
+        bot.move_to(x = 200)
 
     letters_and_locations = get_letters_and_locations_20x()
     three_letters = can_have_three_letters()
@@ -76,4 +75,5 @@ while True:
         #    bot.move_to(x = 50)
         #    if not get_letters_and_locations_20x():
         #        break
+    bot.move_to(x=200)
     time.sleep(2.5)
