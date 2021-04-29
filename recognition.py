@@ -45,6 +45,7 @@ def piggy_bank():
     res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
     show_image(threshed)
+
     if max_val < 0.65:
         return None
     x, y = crop_x + top_left[0] + w, top_left[1] + crop_y
@@ -62,7 +63,7 @@ def next_level():
     crop_x, crop_y, crop_w, crop_h = 200, 120, 260, 235
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     inverted = cv.bitwise_not(gray)
-    ret,threshed = cv.threshold(inverted,30,255,cv.THRESH_BINARY)
+    ret,threshed = cv.threshold(inverted,30,255,cv.THRESH_BINARY) #30
     show_image(threshed)
     for t_name in templates:
         template = cv.imread(t_name,0)
@@ -106,12 +107,10 @@ def get_letters_and_locations_20x():
         return None
     attempts = [sorted(x, key=lambda x:x[0]) for x in attempts]
     letters = ["".join([x[0] for x in attempt]) for attempt in attempts]
-    
     options = list(set(letters))
     best_option, best_option_count = options[0], 0
     for option in options:
         count = letters.count(option)
-        print(option, count)
         if count > best_option_count:
             best_option = option
             best_option_count = count
@@ -119,15 +118,18 @@ def get_letters_and_locations_20x():
         letters = "".join([x[0] for x in l_and_l])
         if letters == best_option:
             return l_and_l
+    
 
+
+#fourcc = cv.VideoWriter_fourcc(*'MJPG')
+#video_writer = cv.VideoWriter('video.mp4', fourcc, 20.0, (640,  480))
 def record_video(frame=None):
     if not frame:
         ret, frame = cap.read()
-    fourcc = cv.VideoWriter_fourcc(*'MJPG')
-    video_writer = cv.VideoWriter('video.mp4', fourcc, 20.0, (640,  480))
     video_writer.write(frame)
     if cv.waitKey(1) == ord('q'):
         return
+
 
 def can_have_three_letters():
     template = cv.imread('no_threes.png',0)
@@ -137,7 +139,7 @@ def can_have_three_letters():
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-    print(max_val)
+    print("three letters max val", max_val)
     return max_val < 0.85 #we want this pretty high. We don't want to accidently match 
 
 def get_letters_and_locations():
@@ -262,4 +264,4 @@ def get_letters_and_locations():
 if __name__ == "__main__":
     DEBUG_VIDEO = True
     while True:        
-        get_letters_and_locations()
+        next_level()

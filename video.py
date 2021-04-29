@@ -20,26 +20,42 @@ while True:
         print("no frame")
 
     
-    #crop_x, crop_y, crop_w, crop_h = 225, 328, 30,29
+    #crop_x, crop_y, crop_w, crop_h = 195, 0, 250,390
     #crop_x, crop_y, crop_w, crop_h = 274, 280, 85, 28
-    crop_x, crop_y, crop_w, crop_h = 263, 271, 60, 25
-    frame = frame[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    #crop_x, crop_y, crop_w, crop_h = 263, 271, 60, 25
+    
+    #frame = frame[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    
-    inverted = cv.bitwise_not(gray)
-    ret,threshed = cv.threshold(inverted,30,255,cv.THRESH_BINARY)
-    
     #gray = cv.bilateralFilter(gray,7,75,75)
-    #gray = cv.GaussianBlur(gray,(5,5),0)
-       
-    #gray = cv.bitwise_not(gray)
-
-    #threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
-    #cv.imwrite("level_3.png", gray)
+    gray = cv.bitwise_not(gray)
     
-    #ret,threshed = cv.threshold(gray,230,255,cv.THRESH_BINARY)
-
-    cv.imwrite("level_1.png", threshed)
+    ret,threshed = cv.threshold(gray,70,255,cv.THRESH_BINARY)
+    
+    contours, hierarchy = cv.findContours(threshed, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    colored = cv.cvtColor(gray,cv.COLOR_GRAY2RGB) 
+    cv.drawContours(colored, contours, -1, (0,255,0), 3)
+    print("*****")
+    points = []
+    for contour in contours:
+        bx, by, bw, bh = cv.boundingRect(contour)
+        if bh > 200:
+            screen_x = bx
+            screen_y = by
+            screen_w = bw
+            screen_h = bh
+        else:
+            points.append((bw/2+bx, bh/2+by))
+    
+    
+    
+    m = cv.mean(threshed)[0]
+    #print(m)
+    #ret,threshed = cv.threshold(gray, 200,255,cv.THRESH_TRUNC)
+    #threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+    
+    
+    #cv.imwrite("level_4.png", threshed)
 
     cv.namedWindow('image')
     cv.setMouseCallback('image',draw_circle)
