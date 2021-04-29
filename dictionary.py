@@ -53,11 +53,9 @@ def permutations(letters):
     return list(set(perms))
 
 
-def sort_words_20x(words):
-    max_length = max([len(w) for w in words])
+def sort_words_20x(words, max_length):
     longest_words = [w for w in words if len(w) == max_length]
     words = [w for w in words if len(w) != max_length]
-
     best_score = 0
     best_list = words
     for i in range(50):

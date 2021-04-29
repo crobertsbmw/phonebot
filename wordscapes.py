@@ -57,8 +57,7 @@ while True:
         continue
 
     letters = [l[0] for l in letters_and_locations]
-    letters.sort()
-    
+    print("letters", letters)
     words = search_dictionary(letters, three_letters)
     if last_letters == letters:
         print("Adding backup words")
@@ -66,7 +65,9 @@ while True:
         words = list(set(words))        
         
     last_letters = letters
-    words = sort_words_20x(words)
+    if len(words) < 6:
+        continue
+    words = sort_words_20x(words, len(letters))
     print(words)
     
     for word in words:

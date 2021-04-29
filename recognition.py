@@ -250,7 +250,6 @@ def get_letters_and_locations():
     if len(game_letters) < 3:
         cv.imwrite("NoLetters.png", threshed)
         return None
-    print(game_letters)
     return game_letters
 
 
