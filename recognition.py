@@ -78,7 +78,7 @@ def next_level():
 
 def get_circle_coord(img):
     circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
-                                param1=100,param2=30,minRadius=55,maxRadius=70)
+                                param1=50,param2=30,minRadius=55,maxRadius=70) #param1 = 100
     try:
         circles = np.uint16(np.around(circles))
     except:
@@ -151,8 +151,6 @@ def get_letters_and_locations():
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     
     coord = get_circle_coord(gray)
-    
-    gray = cv.bilateralFilter(gray,5,75,75)
     try:    
         x, y, r = coord
         r = r-1
@@ -165,6 +163,7 @@ def get_letters_and_locations():
     center, reach = crop_w // 2, crop_w // 5
     center_circle = gray[center-reach:center+reach, center-reach:center+reach]
 
+    gray = cv.bilateralFilter(gray,5,75,75)
 
     m = cv.mean(center_circle)[0]
     m2 = cv.mean(gray)[0]
@@ -172,10 +171,9 @@ def get_letters_and_locations():
     if m2 > m:
         gray = cv.bitwise_not(gray)
         center_color = 255-m
-        print(center_color)
         ret,threshed = cv.threshold(gray, center_color,255,cv.THRESH_TRUNC)
         #ret,threshed = cv.threshold(threshed,center_color-20,255,cv.THRESH_BINARY) #I think the center color before was like 40, and this took it down to like 20.
-        ret,threshed = cv.threshold(threshed,center_color*2/8,255,cv.THRESH_BINARY)
+        ret,threshed = cv.threshold(threshed,center_color*1/6,255,cv.THRESH_BINARY)
         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
     else:
@@ -183,7 +181,6 @@ def get_letters_and_locations():
         
 
     #show_image(threshed)
-    show_image(threshed)
 
     mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
     threshed = cv.bitwise_or(threshed, mask)
@@ -200,7 +197,9 @@ def get_letters_and_locations():
     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
-        if bh < 18: continue #too small
+        if DEBUG_VIDEO:
+            cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2) #make sure this is at the end.
+        if bh < 10: continue #too small
         if bw > 45 or bh > 30: continue # too big
 
         x, y = bx+(bw/2), by+(bh/2) #center of contour bounding box
@@ -210,7 +209,7 @@ def get_letters_and_locations():
         
         if dm > (crop_w / 2) - 8 or dm < 35: #this filters out anything thats not on inside edge of the bounding circle. Replaces the mask
             continue
-                        
+            
         im = threshed[by:by+bh, bx:bx+bw]
         im = cv.resize(im, (20, 25), interpolation = cv.INTER_AREA)
      
@@ -239,29 +238,23 @@ def get_letters_and_locations():
             cv.imwrite("debug2.png", A_template)
             cv.imwrite("debug3.png", B_template)
         game_letters.append((best_match, location))
-        #elif bw/bh < 5/22 and bw/bh > 1/22: #possibly an I
-        #    area = cv.contourArea(contour)
-        #    rect_area = bw*bh
-        #    extent = float(area)/rect_area
-        #    if extent > 0.35:
-        #        game_letters.append(("I", location))
-        #else:
-        #    print("Can't figure out what the letter is..")
         if DEBUG_VIDEO:
             cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2) #make sure this is at the end.
 
 
     if DEBUG_VIDEO:
+        show_image(threshed)
         print(game_letters)
         
 
     if len(game_letters) < 3:
         cv.imwrite("NoLetters.png", threshed)
         return None
+    print(game_letters)
     return game_letters
 
 
 if __name__ == "__main__":
     DEBUG_VIDEO = True
     while True:        
-        next_level()
+        get_letters_and_locations()
