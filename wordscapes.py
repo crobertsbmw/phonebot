@@ -1,6 +1,6 @@
 from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters, piggy_bank, flush_camera
 from phonebot import PhoneBot
-from dictionary import search_dictionary, search_backup_dictionary
+from dictionary import search_dictionary, search_backup_dictionary, sort_words_20x
 from calibrator import camera_to_bot_coordinates
 import time
 
@@ -66,6 +66,7 @@ while True:
         words = list(set(words))        
         
     last_letters = letters
+    words = sort_words_20x(words)
     print(words)
     
     for word in words:

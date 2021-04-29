@@ -54,16 +54,19 @@ def permutations(letters):
 
 
 def sort_words_20x(words):
+    max_length = max([len(w) for w in words])
+    longest_words = [w for w in words if len(w) == max_length]
+    words = [w for w in words if len(w) != max_length]
+
     best_score = 0
     best_list = words
-    for i in range(100):
+    for i in range(50):
         shuffle(words)
-        sorted_words = sort_words(words)
+        sorted_words = sort_words(words)+longest_words
         score = score_list(sorted_words)
         if score > best_score:
             best_score = score
             best_list = sorted_words
-            print("new best", best_score)
     return best_list
 
 def score_list(words):
