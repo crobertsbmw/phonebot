@@ -20435,6 +20435,7 @@ cookshop
 cookshops
 cookware
 cookwares
+cooktop
 cooky
 cool
 coolant
@@ -23870,10 +23871,7 @@ decadent
 decadently
 decadents
 decades
-decaffeinate
-decaffeinated
-decaffeinates
-decaffeinating
+decaf
 decagon
 decagons
 decagram
@@ -30018,6 +30016,7 @@ ebonites
 ebonizing
 ebons
 ebony
+ebook
 ebullience
 ebullient
 ebulliently
@@ -94823,6 +94822,7 @@ suspicious
 suspiciously
 suspiciousness
 suspire
+sussed
 sustain
 sustainable
 sustained
@@ -96396,12 +96396,12 @@ technicolor
 technics
 technique
 techniques
+techno
 technocracy
 technocrat
 technocratic
 technocrats
 technological
-technologically
 technologies
 technologist
 technologists

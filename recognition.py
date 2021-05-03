@@ -162,9 +162,11 @@ def get_letters_and_locations():
     
     center, reach = crop_w // 2, crop_w // 5
     center_circle = gray[center-reach:center+reach, center-reach:center+reach]
-
-    gray = cv.bilateralFilter(gray,5,75,75)
-
+    try:
+        gray = cv.bilateralFilter(gray,5,75,75)
+    except:
+        return #we've cropped away the whole image.
+    
     m = cv.mean(center_circle)[0]
     m2 = cv.mean(gray)[0]
 
@@ -197,8 +199,6 @@ def get_letters_and_locations():
     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
-        if DEBUG_VIDEO:
-            cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2) #make sure this is at the end.
         if bh < 10: continue #too small
         if bw > 45 or bh > 30: continue # too big
 
@@ -209,7 +209,13 @@ def get_letters_and_locations():
         
         if dm > (crop_w / 2) - 8 or dm < 35: #this filters out anything thats not on inside edge of the bounding circle. Replaces the mask
             continue
-            
+
+        location = (x+crop_x, y+crop_y)
+
+        if bw < 6:
+            game_letters.append(("I", location))
+            continue        
+
         im = threshed[by:by+bh, bx:bx+bw]
         im = cv.resize(im, (20, 25), interpolation = cv.INTER_AREA)
      
@@ -218,25 +224,20 @@ def get_letters_and_locations():
         A_template = None
         B_template = None
         for letter, letter_template in letter_template_pairs:
-            #template matching
-            #res = cv.matchTemplate(im,letter_template,cv.TM_CCORR_NORMED)
-            #score = res[0][0]
             if letter == "I" and bw > 7:
                 continue
-            if letter == "W":
+            if letter == "Z":
                 A_template = letter_template
-            if letter == "M":
+            if letter == "I":
                 B_template = letter_template
             score = how_similar(im, letter_template)
             if score > best_score:
                 best_score = score
                 best_match = letter
-        location = (x+crop_x, y+crop_y)
-        #if best_score > 0.40:
-        if best_match == "Z":
-            cv.imwrite("debug1.png", im)
-            cv.imwrite("debug2.png", A_template)
-            cv.imwrite("debug3.png", B_template)
+        #if best_match == "Z":
+        #    cv.imwrite("debug1.png", im)
+        #    cv.imwrite("debug2.png", A_template)
+        #    cv.imwrite("debug3.png", B_template)
         game_letters.append((best_match, location))
         if DEBUG_VIDEO:
             cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2) #make sure this is at the end.
