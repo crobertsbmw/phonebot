@@ -74,6 +74,9 @@ def score_list(words):
             count += 1
     return count
 
+def brute_force(letters):
+    
+
 def sort_words(words):
     words = words[:]
     word = words[0]

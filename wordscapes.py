@@ -8,7 +8,8 @@ bot = PhoneBot()
 bot.connect()
 bot.home()
 
-'''subpar, blog, merlot
+'''
+subpar, blog, merlot, techno, ebook, cooktop
 '''
 
 def tap_out_word(word, landl):
