@@ -9,7 +9,7 @@ bot.connect()
 bot.home()
 
 '''
-subpar, blog, merlot, techno, ebook, cooktop
+subpar, blog, merlot, techno, ebook, cooktop, chemo
 '''
 
 def tap_out_word(word, landl):
@@ -37,6 +37,7 @@ def tap_btn(location):
     bot.tap()
 
 last_letters = []
+repeat_count = 0
 while True:
     flush_camera()
     level = next_level()
@@ -60,10 +61,15 @@ while True:
     letters = [l[0] for l in letters_and_locations]
     print("letters", letters)
     words = search_dictionary(letters, three_letters)
+    #words = brute_force(letters, "C****")
+
     if last_letters == letters:
         print("Adding backup words")
+        repeat_count+=1
         words += search_backup_dictionary(letters)
-        words = list(set(words))        
+        words = list(set(words))
+    else:
+        repeat_count = 0
         
     last_letters = letters
     if len(words) < 6:
@@ -71,12 +77,14 @@ while True:
     words = sort_words_20x(words, len(letters))
     print(words)
     
-    for word in words:
+    for i, word in enumerate(words):
         print(word)
         tap_out_word(word, letters_and_locations)
-        #if len(word) == len(letters):
-        #    bot.move_to(x = 50)
-        #    if not get_letters_and_locations_20x():
-        #        break
-    bot.move_to(x=200)
-    time.sleep(2.5)
+        if repeat_count > 0 and i % 5 == 0:
+            bot.move_to(x=200)
+            if not get_letters_and_locations_20x():
+                print("I think we figured it out")
+                break
+    else:
+        bot.move_to(x=200)
+        time.sleep(2.5)

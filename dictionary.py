@@ -3,15 +3,16 @@ from random import shuffle
 
 with open('dictionary.txt', "r") as file_object:
     # read file content
-    data = file_object.read()
-    dictionary = data.split("\n")
+    blob = file_object.read()
+    dictionary = blob.split("\n")
     dictionary = [d.upper() for d in dictionary if len(d) > 2]
 
 with open('dictionary2.txt', "r") as file_object:
     # read file content
-    data2 = file_object.read()
-    dictionary2 = data2.split("\n")
+    dictionary2 = file_object.read()
+    dictionary2 = dictionary2.split("\n")
     dictionary2 = [d.upper().strip() for d in dictionary2 if len(d) > 2 and len(d) < 10]
+
 
 # with open('dictionary3.txt', "r") as file_object:
 #     # read file content
@@ -74,8 +75,33 @@ def score_list(words):
             count += 1
     return count
 
-def brute_force(letters):
-    
+def brute_force(letters, template):
+    template = template.upper().strip()
+    listed_words = search_dictionary(letters)+search_backup_dictionary(letters)
+    paths = permutations(letters)
+    paths = [p for p in paths if len(p) == len(template)]
+    paths = [p for p in paths if p not in listed_words]
+    for i, letter in enumerate(template):
+        if letter == "_": continue
+        if letter == "*": continue
+        paths = [p for p in paths if letter == p[i]]
+
+    unvalid_paths = []
+    likely_paths = []
+    for path in paths:
+        for i in range(0, len(template)-2):
+            if path[i:i+3] not in blob:
+                unvalid_paths.append(path)
+                break
+        else:
+            if path in blob:
+                likely_paths.append(path)
+
+    valid_paths = [p for p in paths if path not in unvalid_paths]
+    valid_paths = [p for p in paths if path not in likely_paths]
+
+    return sort_words(likely_paths)+sort_words(valid_paths)
+
 
 def sort_words(words):
     words = words[:]
