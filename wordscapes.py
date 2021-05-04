@@ -80,11 +80,10 @@ while True:
     for i, word in enumerate(words):
         print(word)
         tap_out_word(word, letters_and_locations)
-        if repeat_count > 0 and i % 5 == 0:
-            bot.move_to(x=200)
-            if not get_letters_and_locations_20x():
-                print("I think we figured it out")
-                break
-    else:
-        bot.move_to(x=200)
-        time.sleep(2.5)
+        #if repeat_count > 0 and i % 5 == 0:
+        #    bot.move_to(x=200)
+        #    if not get_letters_and_locations_20x():
+        #        print("I think we figured it out")
+        #        break
+    bot.move_to(x=200)
+    time.sleep(2.5)

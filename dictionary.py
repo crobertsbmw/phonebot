@@ -126,3 +126,6 @@ def sort_words(words):
             words.remove(word)
             new_list.append(word)
     return new_list
+
+#words = brute_force("ILGNOB", "*****")
+#print(words)
