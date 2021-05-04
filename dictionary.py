@@ -1,17 +1,17 @@
 import itertools
 from random import shuffle
 
- with open('dictionary.txt', "r") as file_object:
-     # read file content
-     blob = file_object.read()
-     dictionary = blob.split("\n")
-     dictionary = [d.upper() for d in dictionary if len(d) > 2]
+with open('dictionary.txt', "r") as file_object:
+    # read file content
+    blob = file_object.read()
+    dictionary = blob.split("\n")
+    dictionary = [d.upper() for d in dictionary if len(d) > 2]
 
- with open('dictionary2.txt', "r") as file_object:
-     # read file content
-     dictionary2 = file_object.read()
-     dictionary2 = dictionary2.split("\n")
-     dictionary2 = [d.upper().strip() for d in dictionary2 if len(d) > 2 and len(d) < 9]
+with open('dictionary2.txt', "r") as file_object:
+    # read file content
+    dictionary2 = file_object.read()
+    dictionary2 = dictionary2.split("\n")
+    dictionary2 = [d.upper().strip() for d in dictionary2 if len(d) > 2 and len(d) < 9]
 
 # with open('dictionary3.txt', "r") as file_object:
 #     # read file content
