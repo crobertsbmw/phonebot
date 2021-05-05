@@ -53,7 +53,7 @@ def piggy_bank():
 
     
 def next_level():
-    templates = ['level_1.png', 'level_2.png', 'level_3.png', 'collect.png']
+    templates = ['level_1.png', 'level_2.png', 'level_3.png', 'level_4.png', 'collect.png']
     ret, frame = cap.read()
 
     if not ret:
@@ -63,17 +63,19 @@ def next_level():
     crop_x, crop_y, crop_w, crop_h = 200, 120, 260, 235
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     inverted = cv.bitwise_not(gray)
-    ret,threshed = cv.threshold(inverted,30,255,cv.THRESH_BINARY) #30
-    show_image(threshed)
-    for t_name in templates:
-        template = cv.imread(t_name,0)
-        res = cv.matchTemplate(threshed,template,cv.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-        w, h = template.shape[::-1]
-        print(t_name, max_val)
-        if max_val > 0.55:
-            bottom_right = (top_left[0] + w, top_left[1] + h)
-            return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
+    ret,threshed1 = cv.threshold(inverted,30,255,cv.THRESH_BINARY) #30 & 70 for best results!
+    ret,threshed2 = cv.threshold(inverted,60,255,cv.THRESH_BINARY)
+    show_image(threshed1)
+    for threshed in [threshed1, threshed2]:
+        for t_name in templates:
+            template = cv.imread(t_name,0)
+            res = cv.matchTemplate(threshed,template,cv.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+            w, h = template.shape[::-1]
+            print(t_name, max_val)
+            if max_val > 0.6:
+                bottom_right = (top_left[0] + w, top_left[1] + h)
+                return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
 
 def get_circle_coord(img):
