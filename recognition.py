@@ -78,15 +78,18 @@ def next_level():
                 return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 
 
+last_circle_coord = None
 def get_circle_coord(img):
+    global last_circle_coord
     circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
                                 param1=50,param2=30,minRadius=55,maxRadius=70) #param1 = 100
     try:
         circles = np.uint16(np.around(circles))
     except:
-        return None
+        return last_circle_coord
     
     for i in circles[0,:]:
+        last_circle_coord = i
         #cv.circle(img,(i[0],i[1]),i[2]-10,(0,255,0),2)
         #cv.circle(img,(i[0],i[1]),2,(0,0,255),3)
         return i
@@ -144,13 +147,16 @@ def can_have_three_letters():
     print("three letters max val", max_val)
     return max_val < 0.85 #we want this pretty high. We don't want to accidently match 
 
-def get_letters_and_locations():
-    ret, frame = cap.read()
+def get_letters_and_locations(frame=None, debug=False):
+    if frame is None:
+        ret, frame = cap.read()
+        if not ret:
+            print("no frame")
+        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    else:
+        gray = frame
+    
     mask = cv.imread('mask_2.png',0)
-
-    if not ret:
-        print("no frame")
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     
     coord = get_circle_coord(gray)
     try:    
@@ -159,6 +165,7 @@ def get_letters_and_locations():
         crop_x, crop_y, crop_w, crop_h = x-r, y-r, r*2, r*2
         gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     except:
+        print("No Circle")
         show_image(gray)
         return None
     
@@ -167,6 +174,7 @@ def get_letters_and_locations():
     try:
         gray = cv.bilateralFilter(gray,5,75,75)
     except:
+        print("Extra Crop")
         return #we've cropped away the whole image.
     
     m = cv.mean(center_circle)[0]
@@ -177,7 +185,7 @@ def get_letters_and_locations():
         center_color = 255-m
         ret,threshed = cv.threshold(gray, center_color,255,cv.THRESH_TRUNC)
         #ret,threshed = cv.threshold(threshed,center_color-20,255,cv.THRESH_BINARY) #I think the center color before was like 40, and this took it down to like 20.
-        ret,threshed = cv.threshold(threshed,center_color*1/6,255,cv.THRESH_BINARY)
+        ret,threshed = cv.threshold(threshed,center_color*1/5,255,cv.THRESH_BINARY)
         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
     else:
@@ -190,7 +198,7 @@ def get_letters_and_locations():
     threshed = cv.bitwise_or(threshed, mask)
 
     inverted = cv.bitwise_not(threshed)
-
+    
     cnts, heirarchy = cv.findContours(inverted, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     #cnts = imutils.grab_contours(cnts)
     
@@ -228,23 +236,26 @@ def get_letters_and_locations():
         for letter, letter_template in letter_template_pairs:
             if letter == "I" and bw > 7:
                 continue
-            if letter == "Z":
+            if letter == "P":
                 A_template = letter_template
-            if letter == "I":
+            if letter == "R":
                 B_template = letter_template
             score = how_similar(im, letter_template)
             if score > best_score:
                 best_score = score
                 best_match = letter
-        #if best_match == "Z":
+        #if best_match == "P":
         #    cv.imwrite("debug1.png", im)
         #    cv.imwrite("debug2.png", A_template)
         #    cv.imwrite("debug3.png", B_template)
         game_letters.append((best_match, location))
-        if DEBUG_VIDEO:
-            cv.rectangle(threshed,(bx, by), (bx+bw, by+bh), 0, 2) #make sure this is at the end.
-
-
+        if DEBUG_VIDEO or debug:
+            cv.rectangle(threshed,(bx-3, by-3), (bx+bw+3, by+bh+3), 150, 2) #make sure this is at the end.
+    
+    if debug:
+        print([x[0] for x in game_letters])
+        cv.imshow("Display window", threshed)
+        k = cv.waitKey(0)
     if DEBUG_VIDEO:
         show_image(threshed)
         print(game_letters)
@@ -254,6 +265,7 @@ def get_letters_and_locations():
         cv.imwrite("NoLetters.png", threshed)
         return None
     return game_letters
+
 
 
 if __name__ == "__main__":
