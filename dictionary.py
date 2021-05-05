@@ -1,36 +1,33 @@
 import itertools
 from random import shuffle
 
-with open('dictionary.txt', "r") as file_object:
-    # read file content
-    blob = file_object.read()
-    dictionary = blob.split("\n")
-    dictionary = [d.upper() for d in dictionary if len(d) > 2]
+# with open('dictionary.txt', "r") as file_object:
+#     # read file content
+#     blob = file_object.read()
+#     dictionary = blob.split("\n")
+#     dictionary = [d.upper() for d in dictionary if len(d) > 2]
 
-with open('dictionary2.txt', "r") as file_object:
+with open('wordscape_words.txt', "r") as file_object:
     # read file content
     dictionary2 = file_object.read()
     dictionary2 = dictionary2.split("\n")
-    dictionary2 = [d.upper().strip() for d in dictionary2 if len(d) > 2 and len(d) < 9]
 
-# with open('dictionary3.txt', "r") as file_object:
-#     # read file content
-#     data3 = file_object.read()
-#     dictionary3 = data3.split("\n")
-#     dictionary3 = [d.upper().strip() for d in dictionary3 if len(d) > 2 and len(d) < 9]
+with open('wordscape_words2.txt', "r") as file_object:
+    # read file content
+    data3 = file_object.read()
+    dictionary3 = data3.split("\n")
 
-# dictionary3 = [x for x in dictionary3 if x not in dictionary]
-# dictionary2 = list(set(dictionary2 + dictionary3))
-# dictionary2.sort()
+dictionary2 = list(set(dictionary2 + dictionary3))
+dictionary2.sort()
 
-# with open('dictionary4.txt', "w") as file_object:
-#     file_object.write("\n".join(dictionary2))
+with open('dictionary4.txt', "w") as file_object:
+    file_object.write("\n".join(dictionary2))
 
 
-dictionary = [d.upper().strip() for d in dictionary]
-dictionary = [d for d in dictionary if "'" not in d]
-dictionary = [d for d in dictionary if len(d) > 2 and len(d) < 9]
-dictionary.sort()
+# dictionary = [d.upper().strip() for d in dictionary]
+# dictionary = [d for d in dictionary if "'" not in d]
+# dictionary = [d for d in dictionary if len(d) > 2 and len(d) < 9]
+# dictionary.sort()
 
 
 
