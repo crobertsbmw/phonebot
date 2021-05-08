@@ -63,7 +63,7 @@ def next_level():
     crop_x, crop_y, crop_w, crop_h = 200, 120, 260, 235
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     inverted = cv.bitwise_not(gray)
-    ret,threshed1 = cv.threshold(inverted,30,255,cv.THRESH_BINARY) #30 & 70 for best results!
+    ret,threshed1 = cv.threshold(inverted,30,255,cv.THRESH_BINARY)
     ret,threshed2 = cv.threshold(inverted,60,255,cv.THRESH_BINARY)
     show_image(threshed1)
     for threshed in [threshed1, threshed2]:
