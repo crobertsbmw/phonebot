@@ -122,9 +122,10 @@ def get_letters_and_locations_20x():
     for l_and_l in attempts:
         letters = "".join([x[0] for x in l_and_l])
         if letters == best_option:
-            return l_and_l
-    
-
+            break
+    attempts.remove(l_and_l)
+    attempts.insert(0, l_and_l)
+    return attempts
 
 #fourcc = cv.VideoWriter_fourcc(*'MJPG')
 #video_writer = cv.VideoWriter('video.mp4', fourcc, 20.0, (640,  480))

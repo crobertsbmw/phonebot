@@ -46,19 +46,30 @@ while True:
         tap_btn(level)
         bot.move_to(x = 200)
 
-    letters_and_locations = get_letters_and_locations_20x()
+    letters_and_locations_list = get_letters_and_locations_20x()
+    if not letters_and_locations_list:
+        print("No Letters Found")
+        continue
+
+    for letters_and_locations in letters_and_locations_list: #Make sure that you can make an N letter word with the letters that came back.
+        letters = [l[0] for l in letters_and_locations]
+        words = search_dictionary(letters)
+        if words and len(words[-1]) == len(letters):
+            if last_letters == letters and repeat_count > 3:
+                print("We've already tried this three times. Let's try some other letters?")
+                continue
+            break
+    else:
+        print("Valid Letters Not Found.")
+        continue
+
     three_letters = can_have_three_letters()
 
     x_btn = piggy_bank()
     if x_btn:
         print("click piggy bank")
         tap_btn(x_btn)
-        
-    if not letters_and_locations:
-        print("No Letters Found")
-        continue
-
-    letters = [l[0] for l in letters_and_locations]
+    
     print("letters", letters)
     words = search_dictionary(letters, three_letters)
     #words = brute_force(letters, "C****")
@@ -70,7 +81,7 @@ while True:
         words = list(set(words))
     else:
         repeat_count = 0
-        
+    
     last_letters = letters
     if len(words) < 6:
         continue
