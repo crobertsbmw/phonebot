@@ -1,4 +1,4 @@
-from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters, piggy_bank, flush_camera
+from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters, piggy_bank, flush_camera, save_for_review
 from phonebot import PhoneBot
 from dictionary import search_dictionary, search_backup_dictionary, sort_words_20x
 from calibrator import camera_to_bot_coordinates
@@ -38,12 +38,20 @@ def tap_btn(location):
 
 last_letters = []
 repeat_count = 0
+last_tap = 0
+
 while True:
+    last_tap += 1
     flush_camera()
     level = next_level()
+    if last_tap > 25:
+        print("Last Tap is too High. Saving image...")
+        save_for_review()
+        last_tap = 0
     if level:
         print("Clicking next level")
         tap_btn(level)
+        last_tap = 0
         bot.move_to(x = 200)
 
     letters_and_locations_list = get_letters_and_locations_20x()
@@ -60,6 +68,8 @@ while True:
                 continue
             break
     else:
+        if letters_and_locations_list:
+            print([l[0] for l in letters_and_locations_list[0]])
         print("Valid Letters Not Found.")
         continue
 
@@ -96,5 +106,6 @@ while True:
         #    if not get_letters_and_locations_20x():
         #        print("I think we figured it out")
         #        break
+    last_tap = 0
     bot.move_to(x=200)
     time.sleep(2.5)

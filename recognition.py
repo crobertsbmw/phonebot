@@ -3,6 +3,7 @@ import numpy as np
 import cv2 as cv
 import math
 import time
+import glob
 
 DEBUG_VIDEO = False
 cap = cv.VideoCapture(-1)
@@ -12,8 +13,8 @@ def flush_camera():
         ret, frame = cap.read()
         
         
-def get_template(letter): #load the template image and crop it.
-    img = cv.imread('letters/'+letter+'.PNG', 0)
+def get_template(filename): #load the template image and crop it.
+    img = cv.imread(filename, 0)
     ret,img = cv.threshold(img,200,255,cv.THRESH_BINARY)
 
     inverse = cv.bitwise_not(img)
@@ -26,9 +27,12 @@ def get_template(letter): #load the template image and crop it.
     return resized
 
 
-letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-letter_template_pairs = [(l, get_template(l)) for l in letters]
-
+template_files = glob.glob("letters/*.PNG")
+letter_template_pairs = []
+for t in template_files:
+    letter = t.split("letters/")[1][0]
+    template = get_template(t)
+    letter_template_pairs.append((letter, template))
 
 
 def piggy_bank():
@@ -136,6 +140,14 @@ def record_video(frame=None):
     if cv.waitKey(1) == ord('q'):
         return
 
+def save_for_review():
+    ret, frame = cap.read()
+    if not ret:
+        print("no frame")
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    import random
+    n = random.randint(0,9999)
+    cv.imwrite("need_review/"+str(n)+".png", gray)
 
 def can_have_three_letters():
     template = cv.imread('no_threes.png',0)
@@ -190,13 +202,17 @@ def get_letters_and_locations(frame=None, debug=False):
         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
     else:
+        print("here")
         threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
         
 
     #show_image(threshed)
 
     mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
-    threshed = cv.bitwise_or(threshed, mask)
+    try:
+        threshed = cv.bitwise_or(threshed, mask)
+    except:
+        return None    
 
     inverted = cv.bitwise_not(threshed)
     
@@ -245,10 +261,13 @@ def get_letters_and_locations(frame=None, debug=False):
             if score > best_score:
                 best_score = score
                 best_match = letter
-        #if best_match == "P":
-        #    cv.imwrite("debug1.png", im)
-        #    cv.imwrite("debug2.png", A_template)
-        #    cv.imwrite("debug3.png", B_template)
+        #if best_match == "Q":
+        #    cv.imwrite("O1.PNG", im)
+            #cv.imwrite("debug2.png", A_template)
+            #cv.imwrite("debug3.png", B_template)
+        print(best_match, best_score)
+        if best_score < 160:
+            continue
         game_letters.append((best_match, location))
         if DEBUG_VIDEO or debug:
             cv.rectangle(threshed,(bx-3, by-3), (bx+bw+3, by+bh+3), 150, 2) #make sure this is at the end.
