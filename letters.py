@@ -33,6 +33,42 @@ letter_filenames.sort()
 #    cv.imshow("Display window", img)
 #    k = cv.waitKey(0)
 
+'''
+file_name = "test_images/team_thing_1.png"
+img = cv.imread(file_name, 0)
+crop_x, crop_y, crop_w, crop_h = 210, 0, 205, 380
+img = img[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+cv.imwrite("teams_screen.png", img)
+cv.imshow("Display window", img)
+k = cv.waitKey(0)
+'''
+'''
+cap = cv.VideoCapture(-1)
+template = cv.imread('teams_screen.png',0)
+while True:
+    ret, frame = cap.read()
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+    print("three letters max val", max_val)
+    print("top left", top_left)
+    cv.imshow('image', gray)
+    if cv.waitKey(1) == ord('q'):
+        break
+
+cap.release()
+cv.destroyAllWindows()
+'''
+'''
+import random
+
+for file_name in letter_filenames:
+    img = cv.imread(file_name, 0)
+    imgs = get_letters_and_locations(img, return_imgs=True)
+    for image in imgs:
+        n = random.randint(0,9999)
+        cv.imwrite("letters/needs_assignment_"+str(n)+".PNG", image)
+'''
 
 for file_name in letter_filenames:
     img = cv.imread(file_name, 0)
@@ -56,4 +92,3 @@ for file_name in letter_filenames:
             print("FAILED TO DETECT -", actual_letters)
         else:
             print("PASSED", file_name)
-    

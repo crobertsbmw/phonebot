@@ -34,7 +34,14 @@ for t in template_files:
     template = get_template(t)
     letter_template_pairs.append((letter, template))
 
-
+def teams_thing():
+    template = cv.imread('teams_screen.png',0)
+    ret, frame = cap.read()
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
+    return max_val > 0.75
+    
 def piggy_bank():
     template = cv.imread('piggy_bank.png',0)
     ret, frame = cap.read()
@@ -160,7 +167,11 @@ def can_have_three_letters():
     print("three letters max val", max_val)
     return max_val < 0.85 #we want this pretty high. We don't want to accidently match 
 
-def get_letters_and_locations(frame=None, debug=False):
+def get_center():
+    x, y, r = last_circle_coord
+    return (x,y)
+
+def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
     if frame is None:
         ret, frame = cap.read()
         if not ret:
@@ -202,7 +213,6 @@ def get_letters_and_locations(frame=None, debug=False):
         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
     else:
-        print("here")
         threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
         
 
@@ -222,7 +232,7 @@ def get_letters_and_locations(frame=None, debug=False):
     contours = [c for c in cnts if cv.boundingRect(c)[3] > 15]
     
     game_letters = []
-    
+    imgs = []
     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
     for contour in contours:
         bx, by, bw, bh = cv.boundingRect(contour)
@@ -244,8 +254,9 @@ def get_letters_and_locations(frame=None, debug=False):
             continue        
 
         im = threshed[by:by+bh, bx:bx+bw]
+        imgs.append(im)
         im = cv.resize(im, (20, 25), interpolation = cv.INTER_AREA)
-     
+        
         best_match = "A"
         best_score = 0
         A_template = None
@@ -261,11 +272,10 @@ def get_letters_and_locations(frame=None, debug=False):
             if score > best_score:
                 best_score = score
                 best_match = letter
-        #if best_match == "Q":
-        #    cv.imwrite("O1.PNG", im)
+        if best_match == "N":
+            cv.imwrite("M1.PNG", im)
             #cv.imwrite("debug2.png", A_template)
             #cv.imwrite("debug3.png", B_template)
-        print(best_match, best_score)
         if best_score < 160:
             continue
         game_letters.append((best_match, location))
@@ -284,6 +294,8 @@ def get_letters_and_locations(frame=None, debug=False):
     if len(game_letters) < 3:
         cv.imwrite("NoLetters.png", threshed)
         return None
+    if return_imgs:
+        return imgs
     return game_letters
 
 
