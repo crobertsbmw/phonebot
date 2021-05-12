@@ -53,6 +53,14 @@ def test_teams_screen():
     cv.destroyAllWindows()
 
 
+def save_letters(file_name):
+    file_name = glob.glob("test_images/"+file_name+"*.png")[0]
+    img = cv.imread(file_name, 0)
+    imgs = get_letters_and_locations(img, return_imgs=True)
+    for image in imgs:
+        n = random.randint(0,9999)
+        cv.imwrite("letters/needs_assignment_"+str(n)+".PNG", image)
+
 def test_letters():
     for file_name in letter_filenames:
         img = cv.imread(file_name, 0)
@@ -76,3 +84,6 @@ def test_letters():
                 print("FAILED TO DETECT -", actual_letters)
             else:
                 print("PASSED", file_name)
+
+
+save_letters("abc")
