@@ -1,4 +1,4 @@
-from recognition import get_letters_and_locations_20x, next_level, can_have_three_letters, piggy_bank, flush_camera, save_for_review, get_center, teams_thing
+from recognition import get_letters_and_locations, get_letters_and_locations_20x, next_level, can_have_three_letters, piggy_bank, flush_camera, save_for_review, get_center, teams_thing
 from phonebot import PhoneBot
 from dictionary import search_dictionary, search_backup_dictionary, sort_words_20x
 from calibrator import camera_to_bot_coordinates
@@ -11,6 +11,12 @@ bot.home()
 '''
 subpar, blog, merlot, techno, ebook, cooktop, chemo
 '''
+
+def save_letters():
+    imgs = get_letters_and_locations(return_imgs=True)
+    for image, letter in imgs:
+        n = random.randint(0,9999)
+        cv.imwrite("letters/needs_assignment_"+letter+str(n)+".PNG", image)
 
 def tap_out_word(word, landl, center=None):
     landl = landl[:]
@@ -105,6 +111,8 @@ while True:
         continue
     words = sort_words_20x(words, len(letters))
     print(words)
+    if repeat_count > 1:
+        save_letters()
     if repeat_count > 0:
         center = get_center()
     else:

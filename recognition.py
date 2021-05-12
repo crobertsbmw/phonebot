@@ -253,35 +253,25 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
             game_letters.append(("I", location))
             continue        
 
-        im = threshed[by:by+bh, bx:bx+bw]
-        imgs.append(im)
-        im = cv.resize(im, (20, 25), interpolation = cv.INTER_AREA)
+        uncropped = threshed[by:by+bh, bx:bx+bw]
+        im = cv.resize(uncropped, (20, 25), interpolation = cv.INTER_AREA)
         
         best_match = "A"
         best_score = 0
-        A_template = None
-        B_template = None
         for letter, letter_template in letter_template_pairs:
             if letter == "I" and bw > 7:
                 continue
-            if letter == "P":
-                A_template = letter_template
-            if letter == "R":
-                B_template = letter_template
             score = how_similar(im, letter_template)
             if score > best_score:
                 best_score = score
                 best_match = letter
-        if best_match == "N":
-            cv.imwrite("M1.PNG", im)
-            #cv.imwrite("debug2.png", A_template)
-            #cv.imwrite("debug3.png", B_template)
         if best_score < 160:
             continue
         game_letters.append((best_match, location))
+        imgs.append((uncropped, best_match))
         if DEBUG_VIDEO or debug:
             cv.rectangle(threshed,(bx-3, by-3), (bx+bw+3, by+bh+3), 150, 2) #make sure this is at the end.
-    
+        
     if debug:
         print([x[0] for x in game_letters])
         cv.imshow("Display window", threshed)
@@ -290,7 +280,6 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
         show_image(threshed)
         print(game_letters)
         
-
     if len(game_letters) < 3:
         cv.imwrite("NoLetters.png", threshed)
         return None
