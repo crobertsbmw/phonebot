@@ -2,7 +2,8 @@ from recognition import get_letters_and_locations, get_letters_and_locations_20x
 from phonebot import PhoneBot
 from dictionary import search_dictionary, search_backup_dictionary, sort_words_20x
 from calibrator import camera_to_bot_coordinates
-import time
+import time, random
+import cv2 as cv
 
 bot = PhoneBot()
 bot.connect()
@@ -73,6 +74,9 @@ while True:
         print("No Letters Found")
         continue
 
+    if last_tap == 25:
+        save_letters()
+        
     for letters_and_locations in letters_and_locations_list: #Make sure that you can make an N letter word with the letters that came back.
         letters = [l[0] for l in letters_and_locations]
         words = search_dictionary(letters)
@@ -111,6 +115,8 @@ while True:
         continue
     words = sort_words_20x(words, len(letters))
     print(words)
+    if repeat_count == 0:
+        save_for_review(words[-1])
     if repeat_count > 1:
         save_letters()
     if repeat_count > 0:

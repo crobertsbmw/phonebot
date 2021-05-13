@@ -147,14 +147,17 @@ def record_video(frame=None):
     if cv.waitKey(1) == ord('q'):
         return
 
-def save_for_review():
+def save_for_review(letters=None):
     ret, frame = cap.read()
     if not ret:
         print("no frame")
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     import random
     n = random.randint(0,9999)
-    cv.imwrite("need_review/"+str(n)+".png", gray)
+    if not letters:
+        cv.imwrite("need_review/"+str(n)+".png", gray)
+    else:
+        cv.imwrite("need_review/"+letters+".png", gray)
 
 def can_have_three_letters():
     template = cv.imread('no_threes.png',0)
@@ -208,7 +211,6 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
         gray = cv.bitwise_not(gray)
         center_color = 255-m
         ret,threshed = cv.threshold(gray, center_color,255,cv.THRESH_TRUNC)
-        #ret,threshed = cv.threshold(threshed,center_color-20,255,cv.THRESH_BINARY) #I think the center color before was like 40, and this took it down to like 20.
         ret,threshed = cv.threshold(threshed,center_color*1/5,255,cv.THRESH_BINARY)
         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
