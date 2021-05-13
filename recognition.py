@@ -174,6 +174,8 @@ def get_center():
     x, y, r = last_circle_coord
     return (x,y)
 
+
+
 def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
     if frame is None:
         ret, frame = cap.read()
@@ -233,7 +235,9 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
     
     contours = [c for c in cnts if cv.boundingRect(c)[3] > 15]
     
-    game_letters = []
+    letters = []
+    backup_letters = []
+    locations = []
     imgs = []
     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
     for contour in contours:
@@ -250,44 +254,158 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
             continue
 
         location = (x+crop_x, y+crop_y)
-
         if bw < 6:
-            game_letters.append(("I", location))
+            locations.append(location)
+            letters.append("I")
+            backup_letters.append("I")
             continue        
 
         uncropped = threshed[by:by+bh, bx:bx+bw]
         im = cv.resize(uncropped, (20, 25), interpolation = cv.INTER_AREA)
         
         best_match = "A"
+        next_best_match = "A"
         best_score = 0
+        next_best_score = 0
         for letter, letter_template in letter_template_pairs:
             if letter == "I" and bw > 7:
                 continue
             score = how_similar(im, letter_template)
-            if score > best_score:
+            if score > best_score and letter == best_match:
+                best_score = score
+            elif score > next_best_score and letter == next_best_match:
+                next_best_score = score
+            elif score > best_score:
+                next_best_score = best_score
+                next_best_match = best_match
                 best_score = score
                 best_match = letter
+            elif score > next_best_score:
+                next_best_score = score
+                next_best_match = letter
         if best_score < 160:
             continue
-        game_letters.append((best_match, location))
-        imgs.append((uncropped, best_match))
-        if DEBUG_VIDEO or debug:
-            cv.rectangle(threshed,(bx-3, by-3), (bx+bw+3, by+bh+3), 150, 2) #make sure this is at the end.
+        locations.append(location)
+        letters.append(best_match)
+        backup_letters.append(next_best_match)
         
-    if debug:
-        print([x[0] for x in game_letters])
-        cv.imshow("Display window", threshed)
-        k = cv.waitKey(0)
-    if DEBUG_VIDEO:
-        show_image(threshed)
-        print(game_letters)
+    return letters, next_best_letters, locations
+
+
+# def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
+#     if frame is None:
+#         ret, frame = cap.read()
+#         if not ret:
+#             print("no frame")
+#         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+#     else:
+#         gray = frame
+    
+#     mask = cv.imread('mask_2.png',0)
+    
+#     coord = get_circle_coord(gray)
+#     try:    
+#         x, y, r = coord
+#         r = r-1
+#         crop_x, crop_y, crop_w, crop_h = x-r, y-r, r*2, r*2
+#         gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+#     except:
+#         print("No Circle")
+#         show_image(gray)
+#         return None
+    
+#     center, reach = crop_w // 2, crop_w // 5
+#     center_circle = gray[center-reach:center+reach, center-reach:center+reach]
+#     try:
+#         gray = cv.bilateralFilter(gray,5,75,75)
+#     except:
+#         print("Extra Crop")
+#         return #we've cropped away the whole image.
+    
+#     m = cv.mean(center_circle)[0]
+#     m2 = cv.mean(gray)[0]
+
+#     if m2 > m:
+#         gray = cv.bitwise_not(gray)
+#         center_color = 255-m
+#         ret,threshed = cv.threshold(gray, center_color,255,cv.THRESH_TRUNC)
+#         ret,threshed = cv.threshold(threshed,center_color*1/5,255,cv.THRESH_BINARY)
+#         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+
+#     else:
+#         threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
         
-    if len(game_letters) < 3:
-        cv.imwrite("NoLetters.png", threshed)
-        return None
-    if return_imgs:
-        return imgs
-    return game_letters
+
+#     #show_image(threshed)
+
+#     mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
+#     try:
+#         threshed = cv.bitwise_or(threshed, mask)
+#     except:
+#         return None    
+
+#     inverted = cv.bitwise_not(threshed)
+    
+#     cnts, heirarchy = cv.findContours(inverted, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+#     #cnts = imutils.grab_contours(cnts)
+    
+#     contours = [c for c in cnts if cv.boundingRect(c)[3] > 15]
+    
+#     game_letters = []
+#     imgs = []
+#     #TODO: Add a min threshold for the best_score so that we don't detect garbage as a letter.
+#     for contour in contours:
+#         bx, by, bw, bh = cv.boundingRect(contour)
+#         if bh < 10: continue #too small
+#         if bw > 45 or bh > 30: continue # too big
+
+#         x, y = bx+(bw/2), by+(bh/2) #center of contour bounding box
+
+#         dx, dy = (crop_w/2)-x, (crop_h/2)-y
+#         dm = math.sqrt(dx * dx + dy * dy)
+        
+#         if dm > (crop_w / 2) - 8 or dm < 35: #this filters out anything thats not on inside edge of the bounding circle. Replaces the mask
+#             continue
+
+#         location = (x+crop_x, y+crop_y)
+
+#         if bw < 6:
+#             game_letters.append(("I", location))
+#             continue        
+
+#         uncropped = threshed[by:by+bh, bx:bx+bw]
+#         im = cv.resize(uncropped, (20, 25), interpolation = cv.INTER_AREA)
+        
+#         best_match = "A"
+#         best_score = 0
+#         for letter, letter_template in letter_template_pairs:
+#             if letter == "I" and bw > 7:
+#                 continue
+#             score = how_similar(im, letter_template)
+#             if score > best_score:
+#                 best_score = score
+#                 best_match = letter
+#         if best_score < 160:
+#             continue
+#         game_letters.append((best_match, location))
+#         imgs.append((uncropped, best_match))
+#         if DEBUG_VIDEO or debug:
+#             cv.rectangle(threshed,(bx-3, by-3), (bx+bw+3, by+bh+3), 150, 2) #make sure this is at the end.
+        
+#     if debug:
+#         print([x[0] for x in game_letters])
+#         cv.imshow("Display window", threshed)
+#         k = cv.waitKey(0)
+#     if DEBUG_VIDEO:
+#         show_image(threshed)
+#         print(game_letters)
+        
+#     if len(game_letters) < 3:
+#         cv.imwrite("NoLetters.png", threshed)
+#         return None
+#     if return_imgs:
+#         return imgs
+#     return game_letters
 
 
 
