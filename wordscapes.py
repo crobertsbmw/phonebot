@@ -7,7 +7,7 @@ import cv2 as cv
 
 bot = PhoneBot()
 bot.connect()
-bot.home()
+#bot.home()
 
 
 # def save_letters():
@@ -17,7 +17,8 @@ bot.home()
 #         cv.imwrite("letters/needs_assignment_"+letter+str(n)+".PNG", image)
 
 def tap_out_word(word, letters, locations, center=None):
-    landl = landl[:]
+    letters = letters[:]
+    locations = locations[:]
     #first_letter = True
     bot.tap_up()
     if center:
@@ -31,7 +32,8 @@ def tap_out_word(word, letters, locations, center=None):
                 if i == 0:
                     bot.tap_down()
                     first_letter = False
-                landl.remove(v)
+                locations.remove(location)
+                letters.remove(l)
                 if center and i != len(word)-1: #recenter between words so we don't accidently pick up exra letters.
                     bot.move_to(x=cx, y=cy)
                 break
@@ -49,16 +51,17 @@ def get_all_combos(l1, l2):
     if len(l1) == 1:
         return [l1, l2]
     combos = get_all_combos(l1[1:], l2[1:])
-    print(combos)
     combos = [[l1[0]]+c for c in combos] + [[l2[0]]+c for c in combos]
     return combos
 
 
 
 def get_valid_letters_words_and_locations(attempt=0):
-    letters, backup_letters, locations = get_letters_and_locations()
-    if not letters:
-        return None, None, None
+    data = get_letters_and_locations()
+    if not data:
+        return (None, None, None)
+    
+    letters, backup_letters, locations = data
 
     three_letters = can_have_three_letters()
     words = search_dictionary(letters, three_letters)
@@ -76,22 +79,19 @@ def get_valid_letters_words_and_locations(attempt=0):
     for potential in combos:
         words = search_dictionary(potential, three_letters)
         if words and len(words[-1]) == len(letters):
-            other_valid_letters.append(potential, words)
+            other_valid_letters.append((potential, words))
 
     if attempt == 1: attempt = 0
     elif attempt > 2: attempt -= 0
 
     if attempt > len(other_valid_letters) * 2:
         print("I think we have to give up.")
-        return None, None, None
+        return (None, None, None)
 
     i = attempt % len(other_valid_letters)
     letters, words, locations = other_valid_letters[attempt][0], other_valid_letters[attempt][1], locations        
 
-    return letters, words, locations
-
-
-
+    return (letters, words, locations)
 
 
 last_tap = 0

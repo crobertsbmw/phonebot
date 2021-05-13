@@ -187,7 +187,8 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
     
     mask = cv.imread('mask_2.png',0)
     
-    coord = get_circle_coord(gray)
+    for i in range(20):
+        coord = get_circle_coord(gray)
     try:    
         x, y, r = coord
         r = r-1
@@ -289,7 +290,7 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
         letters.append(best_match)
         backup_letters.append(next_best_match)
         
-    return letters, next_best_letters, locations
+    return letters, backup_letters, locations
 
 
 # def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
