@@ -11,7 +11,7 @@ with open('dictionary2.txt', "r") as file_object:
     # read file content
     dictionary2 = file_object.read()
     dictionary2 = dictionary2.split("\n")
-    dictionary2 = [d.upper() for d in dictionary if len(d) > 2]
+    dictionary2 = [d.upper() for d in dictionary2 if len(d) > 2]
 
 #with open('wordscape_words2.txt', "r") as file_object:
 #    # read file content

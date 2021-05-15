@@ -71,6 +71,8 @@ def get_valid_letters_words_and_locations(attempt=0):
     if attempt > 0: #look for more words
         words += search_backup_dictionary(letters)
         words = list(set(words))
+    if words and attempt == 0 and len(words) > 10:
+        return letters, words, locations
     if words and len(words) > 5 and len(words[-1]) == len(letters) and attempt < 2:
         return letters, words, locations #This handles most cases.
     print("Looking at alternatives", attempt)

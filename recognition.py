@@ -208,7 +208,8 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
     
     m = cv.mean(center_circle)[0]
     m2 = cv.mean(gray)[0]
-
+    show_image(gray)
+    return
     if m2 > m:
         gray = cv.bitwise_not(gray)
         center_color = 255-m
@@ -293,7 +294,9 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
     if debug:
         cv.imshow('image', threshed)
         k = cv.waitKey(0)
-    
+    if DEBUG_VIDEO:
+        # show_image(threshed)
+        print(letters)
     if len(letters) < 4:
         return None
     return letters, backup_letters, locations
