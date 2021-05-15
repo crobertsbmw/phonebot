@@ -83,7 +83,6 @@ def next_level():
             res = cv.matchTemplate(threshed,template,cv.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
             w, h = template.shape[::-1]
-            print(t_name, max_val)
             if max_val > 0.6:
                 bottom_right = (top_left[0] + w, top_left[1] + h)
                 return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
@@ -216,11 +215,9 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
         ret,threshed = cv.threshold(gray, center_color,255,cv.THRESH_TRUNC)
         ret,threshed = cv.threshold(threshed,center_color*1/5,255,cv.THRESH_BINARY)
         #threshed = cv.adaptiveThreshold(threshed, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
-
     else:
         threshed = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
         
-
     #show_image(threshed)
 
     mask = cv.resize(mask, (r*2, r*2), interpolation = cv.INTER_AREA)
@@ -245,7 +242,7 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
         bx, by, bw, bh = cv.boundingRect(contour)
         if bh < 10: continue #too small
         if bw > 45 or bh > 30: continue # too big
-
+        
         x, y = bx+(bw/2), by+(bh/2) #center of contour bounding box
 
         dx, dy = (crop_w/2)-x, (crop_h/2)-y
@@ -261,8 +258,8 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
             backup_letters.append("I")
             continue        
 
-        uncropped = threshed[by:by+bh, bx:bx+bw]
-        im = cv.resize(uncropped, (20, 25), interpolation = cv.INTER_AREA)
+        cropped = threshed[by:by+bh, bx:bx+bw]
+        im = cv.resize(cropped, (20, 25), interpolation = cv.INTER_AREA)
         
         best_match = "A"
         next_best_match = "A"
@@ -286,10 +283,19 @@ def get_letters_and_locations(frame=None, debug=False, return_imgs=False):
                 next_best_match = letter
         if best_score < 160:
             continue
+        #print(best_match, best_score, "|||", next_best_match, next_best_score)
         locations.append(location)
         letters.append(best_match)
         backup_letters.append(next_best_match)
-        
+        if DEBUG_VIDEO or debug:
+            cv.rectangle(threshed,(bx-3, by-3), (bx+bw+3, by+bh+3), 150, 2) #make sure this is at the end.
+    
+    if debug:
+        cv.imshow('image', threshed)
+        k = cv.waitKey(0)
+    
+    if len(letters) < 4:
+        return None
     return letters, backup_letters, locations
 
 
