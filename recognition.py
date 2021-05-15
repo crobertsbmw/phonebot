@@ -353,7 +353,9 @@ def get_level_data(frame=None, debug=False):
     if debug:
         cv.imshow('image', threshed)
         k = cv.waitKey(0)
-    
+    if DEBUG_VIDEO:
+        # show_image(threshed)
+        print(letters)
     if len(letters) < 4:
         return None
     level = Level()

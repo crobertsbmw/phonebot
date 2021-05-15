@@ -59,64 +59,6 @@ def get_all_combos(data):
     return new_combos
 
 
-# data = [["a","b","c"], ['d'], ["e", "f", "g"]]
-# combos = get_all_combos(data)
-# for c in combos:
-#     print(c)
-
-# def get_all_combos(l1, l2):
-#     if len(l1) == 0:
-#         return [[], []]
-#     if len(l1) == 1:
-#         return [l1, l2]
-#     combos = get_all_combos(l1[1:], l2[1:])
-#     combos = [[l1[0]]+c for c in combos] + [[l2[0]]+c for c in combos]
-#     return combos
-
-
-NO_LETTERS = 1
-NO_WORDS = 2
-# def get_valid_letters_words_and_locations(attempt=0):
-#     data = get_letters_and_locations()
-#     if not data:
-#         return NO_LETTERS
-    
-#     letters, backup_letters, locations = data
-#     print(letters, backup_letters)
-#     three_letters = can_have_three_letters()
-#     words = search_dictionary(letters, three_letters)
-#     if attempt > 0: #look for more words
-#         words += search_backup_dictionary(letters)
-#         words = list(set(words))
-#     if words and len(words) > 5 and len(words[-1]) == len(letters) and attempt < 2:
-#         return letters, words, locations #This handles most cases.
-#     print("Looking at alternatives", attempt)
-#     #If we get here, it's because we can't make a six letter word with the standard letters.
-#     combos = get_all_combos(letters, backup_letters)
-#     combos.remove(letters)
-#     combos.append(letters)
-#     other_valid_letters = []
-#     for potential in combos:
-#         words = search_dictionary(potential, three_letters)
-#         if words and len(words) > 5 and len(words[-1]) == len(letters):
-#             other_valid_letters.append((potential, words))
-
-#     if attempt == 1: attempt = 0
-#     elif attempt > 2: attempt -= 0
-    
-#     if len(other_valid_letters) == 0:
-#         print("all our guesses are terrible")
-#         return NO_WORDS
-    
-#     if attempt > len(other_valid_letters) * 3:
-#         print("I think we have to give up.")
-#         return NO_WORDS
-#     i = attempt % len(other_valid_letters)
-#     letters, words, locations = other_valid_letters[i][0], other_valid_letters[i][1], locations        
-#     return (letters, words, locations)
-
-
-
 last_tap = 0
 finding_word_attempts = 0
 can_save_for_review = False
