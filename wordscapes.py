@@ -1,4 +1,5 @@
 from recognition import *
+from level import *
 from phonebot import PhoneBot
 from dictionary import search_dictionary, search_backup_dictionary, sort_words_20x
 from calibrator import camera_to_bot_coordinates
