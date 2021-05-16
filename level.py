@@ -4,25 +4,16 @@ import cv2 as cv
 import math
 import time
 import glob
+from cam import *
 from dictionary import search_dictionary, search_backup_dictionary
+from recognition import can_have_three_letters
 
 template_files = glob.glob("letters/*.PNG")
 letter_template_pairs = []
 
 
 DEBUG_VIDEO = False
-cap = cv.VideoCapture(-1)
 circle_mask = cv.imread('mask_2.png',0)
-
-for t in template_files:
-    letter = t.split("letters/")[1][0]
-    template = get_template(t)
-    letter_template_pairs.append((letter, template))
-
-def how_similar(img1, img2):
-    img = cv.bitwise_xor(img1, img2)
-    m = cv.mean(img)[0]
-    return 255-m
 
 
 def get_template(filename): #load the template image and crop it.
@@ -38,6 +29,15 @@ def get_template(filename): #load the template image and crop it.
     resized = cv.resize(img, (20, 25), interpolation = cv.INTER_AREA)
     return resized
 
+for t in template_files:
+    letter = t.split("letters/")[1][0]
+    template = get_template(t)
+    letter_template_pairs.append((letter, template))
+
+def how_similar(img1, img2):
+    img = cv.bitwise_xor(img1, img2)
+    m = cv.mean(img)[0]
+    return 255-m
 
 last_circle_coord = None
 def get_circle_coord(img):
@@ -61,9 +61,9 @@ def get_center():
 
 def flush_camera():
     for i in range(20):
-        ret, frame = cap.read()
+        _ = get_gray()
 
-def get_all_combos(self, data):
+def get_all_combos(data):
     if len(data) == 0:
         return []
     if len(data) == 1:
@@ -80,12 +80,18 @@ class Level():
     attempts = 0
     center = None
     relax_constant = 10
-
+    tried_words = []
+    
     def equals(self, level):
         a = [x for x in self.letters if x not in level.letters]
-        return a < 2
+        return len(a) < 2
 
+    def check_for_max_letter_words(self):
+        #on the first try, let's check for max letter words. If that doesn't work, then let's fall back to what we have in get_valid_letters_words_locations
+        return
+        
     def get_valid_letters_words_and_locations(self):
+        # we should update this to just return locations, because it's possible that there's an R and a B and we get confused and mistake the R for a B and the B for an R and try a word and mark it as visited when we haven't tried the actual word.
         print(self.attempts)
         three_letters = can_have_three_letters()
         letters = self.letters
@@ -98,14 +104,13 @@ class Level():
                 words = list(set(words))
             return self.letters, words, self.locations
         elif self.attempts == 1 and words:
+            self.tried_words = words
             return words, self.letters, self.locations
             
         all_availables = []
         #[[A:200, B:199], [A:200, B:199]]
         for score_chart in self.letters_scores:
             best_score = score_chart[0][0]
-            print("Best Score", best_score)
-            print("Score Chart", score_chart)
             availables = [x[1] for x in score_chart if x[0] > best_score-self.relax_constant]
             all_availables.append(availables)
 
@@ -114,8 +119,8 @@ class Level():
         other_valid_letters = []
         for potential in combos:
             trial_words = search_dictionary(potential, three_letters)
-            trial_words = [x for x in trial_words if x not in words]
-            if len(trial_words) > 1:
+            trial_words = [x for x in trial_words if x not in self.tried_words]
+            if len(trial_words) > 0:
                 other_valid_letters.append((potential, trial_words))
 
         i = self.attempts - 2
@@ -129,6 +134,7 @@ class Level():
         i = self.attempts % len(other_valid_letters)
         letters, words, locations = other_valid_letters[i][0], other_valid_letters[i][1], self.locations
         print("returning other", words, len(other_valid_letters))
+        self.tried_words = tried_words + words
         return (letters, words, locations)
 
 
@@ -164,7 +170,7 @@ def threshold_and_crop(gray):
 
     threshed2 = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
     show_image(threshed)
-    if m < m2: # flop flop threshed and threshed2
+    if m > m2: # flop flop threshed and threshed2
         t = threshed
         threshed = threshed2
         threshed2 = t
@@ -182,10 +188,7 @@ def threshold_and_crop(gray):
 
 def get_level_data(frame=None, debug=False):
     if frame is None:
-        ret, frame = cap.read()
-        if not ret:
-            print("no frame")
-        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        gray = get_gray()
     else:
         gray = frame
     
@@ -196,12 +199,11 @@ def get_level_data(frame=None, debug=False):
     inverted, inverted2 = cv.bitwise_not(threshed), cv.bitwise_not(threshed2)
 
     letter_contours = get_letter_contours(inverted)
-    if len(letter_contours) < 4:
+    if len(letter_contours) < 5:
         letter_contours = get_letter_contours(inverted2)
-        if len(letter_contours) < 4:
+        if len(letter_contours) < 5:
             return None
         else:
-            print("SWAPPING FOR THRESHED 2 IMAGE")
             inverted = inverted2
             threshed = threshed2
 
@@ -231,13 +233,16 @@ def get_level_data(frame=None, debug=False):
             scores.append((score, letter))
         scores.sort()
         scores = scores[::-1]
+        if scores[0][0] < 160:
+            continue
         letters_scores.append(scores)
         locations.append(location)
         letters.append(scores[0][1])
         
         if DEBUG_VIDEO or debug:
             cv.rectangle(threshed,(bx-3, by-3), (bx+bw+3, by+bh+3), 150, 2) #make sure this is at the end.
-    
+    if len(letters) < 5:
+        return None
     if debug:
         cv.imshow('image', threshed)
         k = cv.waitKey(0)
