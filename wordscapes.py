@@ -17,28 +17,20 @@ bot.home()
 #         n = random.randint(0,9999)
 #         cv.imwrite("letters/needs_assignment_"+letter+str(n)+".PNG", image)
 
-def tap_out_word(word, letters, locations, center=None):
-    letters = letters[:]
-    locations = locations[:]
-    #first_letter = True
+def tap_out_word(moves, center=None):
     bot.tap_up()
     if center:
         cx, cy = camera_to_bot_coordinates(center)
     
-    for i, letter in enumerate(word):
-        for l, location in zip(letters, locations):
-            if l == letter:
-                x, y = camera_to_bot_coordinates(location)
-                bot.move_to(x=x, y=y)
-                if i == 0:
-                    bot.tap_down()
-                    first_letter = False
-                locations.remove(location)
-                letters.remove(l)
-                if center and i != len(word)-1: #recenter between words so we don't accidently pick up exra letters.
-                    bot.move_to(x=cx, y=cy)
-                break
-    bot.tap_up()
+    for move_set in moves:
+        for i, move in enumerate(move_set):
+            x, y = camera_to_bot_coordinates(move)
+            bot.move_to(x=x, y=y)
+            if i == 0:
+                bot.tap_down()
+            if center and i != len(word)-1: #recenter between words so we don't accidently pick up exra letters.
+                bot.move_to(x=cx, y=cy)
+        bot.tap_up()
 
 
 def tap_btn(location):
@@ -91,8 +83,8 @@ while True:
     if last_level and level.equals(last_level):
         level = last_level
     
-    d = level.get_valid_letters_words_and_locations()
-    if not d:
+    moves = level.get_moves()
+    if not moves:
         relax = level.relax_constant
         new_level = get_level_data()
         if new_level:
@@ -104,9 +96,7 @@ while True:
             save_for_review()
         time.sleep(0.5)
         continue
-    
-    letters, words, locations = d
-    words = sort_words_20x(words, len(letters))
+        
     print(words)
 
     if level.attempts > 0:
@@ -122,7 +112,7 @@ while True:
         tap_btn(x_btn)
     
     for i, word in enumerate(words):
-        tap_out_word(word, letters, locations, center)
+        tap_out_word(moves, center)
 
     bot.move_to(x=200)
     time.sleep(2.5)

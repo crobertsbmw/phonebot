@@ -15,7 +15,6 @@ letter_template_pairs = []
 DEBUG_VIDEO = False
 circle_mask = cv.imread('mask_2.png',0)
 
-
 def get_template(filename): #load the template image and crop it.
     img = cv.imread(filename, 0)
     ret,img = cv.threshold(img,200,255,cv.THRESH_BINARY)
@@ -80,32 +79,74 @@ class Level():
     attempts = 0
     center = None
     relax_constant = 10
-    tried_words = []
+    tried_moves = []
     
     def equals(self, level):
         a = [x for x in self.letters if x not in level.letters]
         return len(a) < 2
 
     def check_for_max_letter_words(self):
-        #on the first try, let's check for max letter words. If that doesn't work, then let's fall back to what we have in get_valid_letters_words_locations
-        return
-        
-    def get_valid_letters_words_and_locations(self):
-        # we should update this to just return locations, because it's possible that there's an R and a B and we get confused and mistake the R for a B and the B for an R and try a word and mark it as visited when we haven't tried the actual word.
+        all_availables = []
+        #[[A:200, B:199], [A:200, B:199]]
+        for score_chart in self.letters_scores:
+            best_score = score_chart[0][0]
+            availables = [x[1] for x in score_chart if x[0] > best_score-self.relax_constant]
+            all_availables.append(availables)
+
+        combos = get_all_combos(all_availables)
+
+        other_valid_letters = []
+        for potential in combos:
+            trial_words = search_dictionary(potential, three_letters)
+            if len(trial_words[-1]) == len(self.letters):
+                return [self.word_to_locations(word, potential) for word in trial_words]
+
+    
+    def word_to_locations(self, word):
+        word_moves = []
+        for i, letter in enumerate(word):
+            for l, location in zip(self.letters, self.locations):
+                if l == letter:
+                    word_moves.append(location)
+                    locations.remove(location)
+                    letters.remove(l)
+                    break
+        return word_moves
+
+
+    def get_moves(self):
         print(self.attempts)
         three_letters = can_have_three_letters()
         letters = self.letters
-        words = search_dictionary(letters, three_letters)
-        if words and self.attempts == 0:
-            if len(words) < 6:
+        if self.attempts == 0:
+            moves = self.check_for_max_letter_words()
+            if moves:
+                return moves
+            else:
                 self.attempts += 1
-            if len(words[-1]) != len(letters):
+
+        words = search_dictionary(letters, three_letters)
+        if self.attempts == 1:
+            if not words:
+                attempts += 1
+            if words and len(words) < 6:
+                self.attempts += 1
+            if words and len(words[-1]) != len(letters):
                 words += search_backup_dictionary(letters, three_letters)
                 words = list(set(words))
-            return self.letters, words, self.locations
-        elif self.attempts == 1 and words:
-            self.tried_words = words
-            return words, self.letters, self.locations
+            words = sort_words_20x(words, len(letters))
+            print(words)
+            moves = [self.word_to_locations(word) for word in words]
+            return moves
+        
+        if self.attempts == 2:
+            if words:
+                words = sort_words_20x(words, len(letters))
+                print(words)
+                moves = [self.word_to_locations(word) for word in words]
+                return moves
+            else:
+                self.attempts += 1
             
         all_availables = []
         #[[A:200, B:199], [A:200, B:199]]
@@ -119,23 +160,30 @@ class Level():
         other_valid_letters = []
         for potential in combos:
             trial_words = search_dictionary(potential, three_letters)
-            trial_words = [x for x in trial_words if x not in self.tried_words]
             if len(trial_words) > 0:
                 other_valid_letters.append((potential, trial_words))
 
-        i = self.attempts - 2
+        i = self.attempts - 3
         if len(other_valid_letters) == 0:
             print("all our guesses are terrible")
             return None
 
         if i > len(other_valid_letters):
+            print("We've tried everything")
             return None
 
         i = self.attempts % len(other_valid_letters)
+
         letters, words, locations = other_valid_letters[i][0], other_valid_letters[i][1], self.locations
-        print("returning other", words, len(other_valid_letters))
-        self.tried_words = tried_words + words
-        return (letters, words, locations)
+        words = sort_words_20x(words, len(letters))
+        print(words)
+        moves = [self.word_to_locations(word) for word in words]
+        moves = [m for m in moves if m not in self.tried_moves]
+        self.tried_moves = tried_moves + moves
+        if len(moves) == 0:
+            self.attempts += 1
+            return self.get_moves()
+        return moves
 
 
 
