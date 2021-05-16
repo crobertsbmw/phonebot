@@ -19,8 +19,6 @@ for t in template_files:
     template = get_template(t)
     letter_template_pairs.append((letter, template))
 
-
-
 def how_similar(img1, img2):
     img = cv.bitwise_xor(img1, img2)
     m = cv.mean(img)[0]

@@ -94,7 +94,9 @@ while True:
     d = level.get_valid_letters_words_and_locations()
     if not d:
         relax = level.relax_constant
-        level = get_level_data()
+        new_level = get_level_data()
+        if new_level:
+            level = new_level
         level.relax_constant = relax + 5
         #shuffle and try again
         if can_save_for_review:
