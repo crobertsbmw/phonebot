@@ -1,7 +1,4 @@
 from phonebot import PhoneBot
-from recognition import get_letters_and_locations, next_level, can_have_three_letters
-from dictionary import search_dictionary
-import time
 
 bot = PhoneBot()
 bot.connect()

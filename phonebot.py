@@ -56,7 +56,7 @@ class PhoneBot:
         self.move_to(z=Z_UP)
 
     def tap(self):
-        self.tap_down()
+        self.move_to(z=0.0)
         time.sleep(0.1)
         self.tap_up()
 

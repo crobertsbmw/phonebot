@@ -60,21 +60,20 @@ def get_all_combos(data):
 
 
 last_tap = 0
-finding_word_attempts = 0
 can_save_for_review = False
 last_level = None
 while True:
     last_tap += 1
     flush_camera()
-    level = next_level()
     if last_tap == 25:
         print("Last Tap is too High. Saving image...")
         save_for_review()
-        
-    if level:
+    
+    next_level_btn = next_level()        
+    if next_level_btn:
         finding_word_attempts = 0
         can_save_for_review = True
-        tap_btn(level)
+        tap_btn(next_level_btn)
         last_tap = 0
         bot.move_to(x = 200)
         time.sleep(0.5)
@@ -87,12 +86,14 @@ while True:
     if not level:
         continue
 
-    if level.equals(last_level):
-        level.attempts += 1
+    if last_level and level.equals(last_level):
+        level = last_level
     
     d = level.get_valid_letters_words_and_locations()
     if not d:
-        print("Didnt find words!!! Shuffle and try again.")
+        relax = level.relax_constant
+        level = get_level_data()
+        level.relax_constant = relax + 5
         #shuffle and try again
         if can_save_for_review:
             can_save_for_review = False
@@ -104,19 +105,19 @@ while True:
     words = sort_words_20x(words, len(letters))
     print(words)
 
-    if finding_word_attempts > 0:
+    if level.attempts > 0:
         center = get_center()
     else:
         center = None
     
-    finding_word_attempts += 1
+    level.attempts += 1
+    last_level = level
     x_btn = piggy_bank()
     if x_btn:
         print("click piggy bank")
         tap_btn(x_btn)
     
     for i, word in enumerate(words):
-        print(word)
         tap_out_word(word, letters, locations, center)
        
     last_tap = 0
