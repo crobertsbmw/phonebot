@@ -51,10 +51,15 @@ def get_all_combos(data):
         new_combos = new_combos + [[letter]+combo for combo in combos]
     return new_combos
 
+def shuffle():
+    bot.move_to(x=114, y=165)
+    bot.tap()
+    bot.move_to(x = 95)
 
 last_tap = 0
 can_save_for_review = False
 last_level = None
+relaxed = False
 while True:
     last_tap += 1
     flush_camera()
@@ -66,6 +71,7 @@ while True:
     next_level_btn = next_level()        
     if next_level_btn:
         finding_word_attempts = 0
+        relaxed = False
         can_save_for_review = True
         tap_btn(next_level_btn)
         last_tap = 0
@@ -79,18 +85,16 @@ while True:
     level = get_level_data()
     if not level:
         continue
+    elif relaxed:
+        level.relax_constant = 20
 
     if last_level and level.equals(last_level):
         level = last_level
     
     moves = level.get_moves()
     if not moves:
-        relax = level.relax_constant
-        new_level = get_level_data()
-        if new_level:
-            level = new_level
-        level.relax_constant = relax + 5
-        #shuffle and try again
+        relaxed = True
+        shuffle()
         if can_save_for_review:
             can_save_for_review = False
             save_for_review()

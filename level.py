@@ -115,7 +115,6 @@ class Level():
                     locations.remove(location)
                     letters.remove(l)
                     break
-        print("word", word, word_moves)
         return word_moves
 
 
@@ -132,17 +131,16 @@ class Level():
 
         words = search_dictionary(letters, three_letters)
         if self.attempts == 1:
-            if not words:
-                attempts += 1
-            if words and len(words) < 6:
+            if words and len(words) > 5:
+                if words and len(words[-1]) != len(letters):
+                    words += search_backup_dictionary(letters, three_letters)
+                    words = list(set(words))
+                words = sort_words_20x(words, len(letters))
+                print(words)
+                moves = [self.word_to_locations(word, self.letters) for word in words]
+                return moves
+            else:
                 self.attempts += 1
-            if words and len(words[-1]) != len(letters):
-                words += search_backup_dictionary(letters, three_letters)
-                words = list(set(words))
-            words = sort_words_20x(words, len(letters))
-            print(words)
-            moves = [self.word_to_locations(word, self.letters) for word in words]
-            return moves
         
         if self.attempts == 2:
             if words:
@@ -179,7 +177,6 @@ class Level():
             return None
 
         i = self.attempts % len(other_valid_letters)
-
         letters, words, locations = other_valid_letters[i][0], other_valid_letters[i][1], self.locations
         words = sort_words_20x(words, len(letters))
         print(words)
