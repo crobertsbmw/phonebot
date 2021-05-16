@@ -28,7 +28,9 @@ class Level():
     relax_constant = 10
 
     def equals(self, level):
-        return sorted(self.letters) == sorted(level.letters)
+        a = [x for x in self.letters if x not in level.letters]
+        return a < 2
+        #return sorted(self.letters) == sorted(level.letters)
 
     def get_valid_letters_words_and_locations(self):
         print(self.attempts)
