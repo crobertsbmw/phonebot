@@ -17,7 +17,7 @@ bot.home()
 #         n = random.randint(0,9999)
 #         cv.imwrite("letters/needs_assignment_"+letter+str(n)+".PNG", image)
 
-def tap_out_word(moves, center=None):
+def tap_out_moves(moves, center=None):
     bot.tap_up()
     if center:
         cx, cy = camera_to_bot_coordinates(center)
@@ -28,7 +28,7 @@ def tap_out_word(moves, center=None):
             bot.move_to(x=x, y=y)
             if i == 0:
                 bot.tap_down()
-            if center and i != len(word)-1: #recenter between words so we don't accidently pick up exra letters.
+            if center and i != len(move_set)-1: #recenter between words so we don't accidently pick up exra letters.
                 bot.move_to(x=cx, y=cy)
         bot.tap_up()
 
@@ -97,8 +97,6 @@ while True:
         time.sleep(0.5)
         continue
         
-    print(words)
-
     if level.attempts > 0:
         center = get_center()
     else:
@@ -111,8 +109,7 @@ while True:
         print("click piggy bank")
         tap_btn(x_btn)
     
-    for i, word in enumerate(words):
-        tap_out_word(moves, center)
+    tap_out_moves(moves, center)
 
     bot.move_to(x=200)
     time.sleep(2.5)

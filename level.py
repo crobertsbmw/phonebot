@@ -3,9 +3,10 @@ import numpy as np
 import cv2 as cv
 import math
 import time
+import copy
 import glob
 from cam import *
-from dictionary import search_dictionary, search_backup_dictionary
+from dictionary import search_dictionary, search_backup_dictionary, sort_words_20x
 from recognition import can_have_three_letters
 
 template_files = glob.glob("letters/*.PNG")
@@ -97,25 +98,29 @@ class Level():
 
         other_valid_letters = []
         for potential in combos:
-            trial_words = search_dictionary(potential, three_letters)
+            trial_words = search_dictionary(potential)
             if len(trial_words[-1]) == len(self.letters):
+                print("max letter words", trial_words)
                 return [self.word_to_locations(word, potential) for word in trial_words]
 
     
-    def word_to_locations(self, word):
+    def word_to_locations(self, word, letters):
         word_moves = []
+        locations = self.locations[:]
+        letters = letters[:]
         for i, letter in enumerate(word):
-            for l, location in zip(self.letters, self.locations):
+            for l, location in zip(letters, locations):
                 if l == letter:
                     word_moves.append(location)
                     locations.remove(location)
                     letters.remove(l)
                     break
+        print("word", word, word_moves)
         return word_moves
 
 
     def get_moves(self):
-        print(self.attempts)
+        print("attempts", self.attempts)
         three_letters = can_have_three_letters()
         letters = self.letters
         if self.attempts == 0:
@@ -136,14 +141,15 @@ class Level():
                 words = list(set(words))
             words = sort_words_20x(words, len(letters))
             print(words)
-            moves = [self.word_to_locations(word) for word in words]
+            moves = [self.word_to_locations(word, self.letters) for word in words]
             return moves
         
         if self.attempts == 2:
             if words:
                 words = sort_words_20x(words, len(letters))
                 print(words)
-                moves = [self.word_to_locations(word) for word in words]
+                moves = [self.word_to_locations(word, self.letters) for word in words]
+                self.tried_moves += moves
                 return moves
             else:
                 self.attempts += 1
@@ -177,9 +183,9 @@ class Level():
         letters, words, locations = other_valid_letters[i][0], other_valid_letters[i][1], self.locations
         words = sort_words_20x(words, len(letters))
         print(words)
-        moves = [self.word_to_locations(word) for word in words]
+        moves = [self.word_to_locations(word, letters) for word in words]
         moves = [m for m in moves if m not in self.tried_moves]
-        self.tried_moves = tried_moves + moves
+        self.tried_moves += moves
         if len(moves) == 0:
             self.attempts += 1
             return self.get_moves()
