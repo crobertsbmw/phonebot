@@ -68,6 +68,7 @@ while True:
     if last_tap == 25:
         print("Last Tap is too High. Saving image...")
         save_for_review()
+        break
     
     next_level_btn = next_level()        
     if next_level_btn:
@@ -119,7 +120,6 @@ while True:
     
     for i, word in enumerate(words):
         tap_out_word(word, letters, locations, center)
-       
-    last_tap = 0
+
     bot.move_to(x=200)
     time.sleep(2.5)

@@ -29,7 +29,7 @@ class Level():
 
     def equals(self, level):
         a = [x for x in self.letters if x not in level.letters]
-        return a < 2
+        return len(a) < 2
         #return sorted(self.letters) == sorted(level.letters)
 
     def get_valid_letters_words_and_locations(self):
