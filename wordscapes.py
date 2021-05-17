@@ -52,7 +52,7 @@ def get_all_combos(data):
     return new_combos
 
 def shuffle():
-    bot.move_to(x=114, y=165)
+    bot.move_to(x=117, y=160)
     bot.tap()
     bot.move_to(x = 95)
 
@@ -63,14 +63,16 @@ relaxed = False
 while True:
     last_tap += 1
     flush_camera()
-    if last_tap == 25:
+    if last_tap == 35:
         print("Last Tap is too High. Saving image...")
         save_for_review()
         break
     
     next_level_btn = next_level()        
     if next_level_btn:
+        print("***************Next Level***************")
         finding_word_attempts = 0
+        shuffles = 0
         relaxed = False
         can_save_for_review = True
         tap_btn(next_level_btn)
@@ -79,7 +81,7 @@ while True:
         time.sleep(0.5)
     elif teams_thing():
         finding_word_attempts = 0
-        bot.move_to(x=112, y=250)
+        bot.move_to(x=115, y=230)
         bot.tap()
 
     level = get_level_data()
@@ -94,7 +96,10 @@ while True:
     moves = level.get_moves()
     if not moves:
         relaxed = True
+        print("SHUFFLING")
         shuffle()
+        level = None
+        last_level = None
         if can_save_for_review:
             can_save_for_review = False
             save_for_review()

@@ -99,7 +99,7 @@ class Level():
         other_valid_letters = []
         for potential in combos:
             trial_words = search_dictionary(potential)
-            if len(trial_words[-1]) == len(self.letters):
+            if len(trial_words) > 0 and len(trial_words[-1]) == len(self.letters):
                 print("max letter words", trial_words)
                 return [self.word_to_locations(word, potential) for word in trial_words]
 
@@ -173,7 +173,7 @@ class Level():
             return None
 
         if i > len(other_valid_letters):
-            print("We've tried everything")
+            print("We've tried everything", len(other_valid_letters))
             return None
 
         i = self.attempts % len(other_valid_letters)

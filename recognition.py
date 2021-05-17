@@ -11,7 +11,7 @@ def teams_thing():
     gray = get_gray()
     res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
-    return max_val > 0.75
+    return max_val > 0.6
     
 def piggy_bank():
     template = cv.imread('piggy_bank.png',0)
