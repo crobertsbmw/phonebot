@@ -31,9 +31,10 @@ def tap_out_moves(moves, center=None):
                 bot.tap_down()
             if center and i != len(move_set)-1: #recenter between words so we don't accidently pick up exra letters.
                 bot.move_to(x=cx, y=cy)
-        if j % 4 == 2:
-            save_timelapse()
         bot.tap_up()
+        if j % 5 == 3:
+            bot.move_to(x=200)
+            save_timelapse()
 
 
 
@@ -69,7 +70,7 @@ blind_next_level = False
 while True:
     last_tap += 1
     flush_camera()
-    if last_tap == 20:
+    if last_tap == 30:
         print("Last Tap is too High. Saving image...")
         save_for_review()
         break
