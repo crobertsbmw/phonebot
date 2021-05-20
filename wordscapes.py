@@ -60,10 +60,12 @@ last_tap = 0
 can_save_for_review = False
 last_level = None
 relaxed = False
+level_btn_loc = None
+blind_next_level = False
 while True:
     last_tap += 1
     flush_camera()
-    if last_tap == 35:
+    if last_tap == 20:
         print("Last Tap is too High. Saving image...")
         save_for_review()
         break
@@ -71,21 +73,28 @@ while True:
     next_level_btn = next_level()        
     if next_level_btn:
         print("***************Next Level***************")
+        level_btn_loc = next_level_btn
         finding_word_attempts = 0
         shuffles = 0
         relaxed = False
         can_save_for_review = True
-        tap_btn(next_level_btn)
         last_tap = 0
+        tap_btn(next_level_btn)
         bot.move_to(x = 200)
         time.sleep(0.5)
     elif teams_thing():
         finding_word_attempts = 0
         bot.move_to(x=115, y=230)
         bot.tap()
-
+    
     level = get_level_data()
     if not level:
+        if level_btn_loc and last_tap > 0 and last_tap % 5 == 0:
+            print("tapping next level button that we couldn't detect.")
+            tap_btn(level_btn_loc)
+            blind_next_level = True
+            bot.move_to(x = 95)
+            time.sleep(0.5)
         continue
     elif relaxed:
         level.relax_constant = 20
@@ -105,7 +114,11 @@ while True:
             save_for_review()
         time.sleep(0.5)
         continue
-        
+    
+    if blind_next_level:
+        blind_next_level = False
+        last_tap = 0
+    
     if level.attempts > 0:
         center = get_center()
     else:
