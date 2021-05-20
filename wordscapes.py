@@ -31,7 +31,7 @@ def tap_out_moves(moves, center=None):
                 bot.tap_down()
             if center and i != len(move_set)-1: #recenter between words so we don't accidently pick up exra letters.
                 bot.move_to(x=cx, y=cy)
-        if j % 4 == 0:
+        if j % 4 == 2:
             save_timelapse()
         bot.tap_up()
 

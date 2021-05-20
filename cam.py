@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 import sys
+import glob
 
 cap = cv.VideoCapture(-1)
 DEBUG_VIDEO = False
@@ -20,7 +21,7 @@ def get_gray():
 def save_timelapse():
     global count
     ret, frame = cap.read()
-    cv.imwrite("timelapse/"+str(count)+".png", gray)
+    cv.imwrite("timelapse/"+str(count)+".png", frame)
     count += 1
 
     
