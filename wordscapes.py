@@ -1,5 +1,6 @@
 from recognition import *
 from level import *
+from cam import save_timelapse
 from phonebot import PhoneBot
 from dictionary import search_dictionary, search_backup_dictionary, sort_words_20x
 from calibrator import camera_to_bot_coordinates
@@ -22,7 +23,7 @@ def tap_out_moves(moves, center=None):
     if center:
         cx, cy = camera_to_bot_coordinates(center)
     
-    for move_set in moves:
+    for j, move_set in enumerate(moves):
         for i, move in enumerate(move_set):
             x, y = camera_to_bot_coordinates(move)
             bot.move_to(x=x, y=y)
@@ -30,7 +31,10 @@ def tap_out_moves(moves, center=None):
                 bot.tap_down()
             if center and i != len(move_set)-1: #recenter between words so we don't accidently pick up exra letters.
                 bot.move_to(x=cx, y=cy)
+        if j % 4 == 0:
+            save_timelapse()
         bot.tap_up()
+
 
 
 def tap_btn(location):
@@ -134,4 +138,5 @@ while True:
     tap_out_moves(moves, center)
 
     bot.move_to(x=200)
+    save_timelapse()
     time.sleep(2.5)
