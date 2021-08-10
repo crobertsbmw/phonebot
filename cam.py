@@ -26,17 +26,17 @@ def get_gray():
     return gray
 
 def save_timelapse():
-    global count
+    global lapse_count
     for i in range(0,20):
         ret, frame = cap.read()
     cv.imwrite("timelapse/"+str(lapse_count)+".png", frame)
-    count += 1
+    lapse_count += 1
 
 def next_level_lapse():
-    global count
+    global next_level_count
     ret, frame = cap.read()
     cv.imwrite("next_level_lapse/"+str(next_level_count)+".png", frame)
-    count += 1
+    next_level_count += 1
 
     
 def show_image(img):

@@ -101,6 +101,7 @@ class Level():
             trial_words = search_dictionary(potential)
             if len(trial_words) > 0 and len(trial_words[-1]) == len(self.letters):
                 print("max letter words", trial_words)
+                trial_words = sort_words_20x(trial_words, len(self.letters))
                 return [self.word_to_locations(word, potential) for word in trial_words]
 
     

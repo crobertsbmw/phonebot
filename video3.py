@@ -149,7 +149,9 @@ def get_letters_and_locations():
         location = (x+crop_x, y+crop_y)
         game_letters.append((best_match, location))
         cv.rectangle(v_frame,(bx+crop_x, by+crop_y), (bx+bw+crop_x, by+bh+crop_y), (0,255,0), 2)
-        
+    letters = [l[0] for l in game_letters]
+    locations = [l[1] for l in game_letters]
+    print(" ".join(letters),"  ", locations)
     record_video(v_frame)
 
 

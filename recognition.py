@@ -3,7 +3,7 @@ import numpy as np
 import cv2 as cv
 import time
 from cam import *
-
+import glob
 DEBUG_VIDEO = False
 
 def teams_thing():
@@ -32,10 +32,10 @@ def piggy_bank():
 
     
 def next_level():
-    templates = ['level_1.png', 'level_2.png', 'level_3.png', 'level_4.png', 'collect.png']
+    templates = glob.glob("next_level_images/*.png")
     gray = get_gray()
     
-    crop_x, crop_y, crop_w, crop_h = 200, 120, 260, 235
+    crop_x, crop_y, crop_w, crop_h = 255, 235, 150, 160
     gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     inverted = cv.bitwise_not(gray)
     ret,threshed1 = cv.threshold(inverted,30,255,cv.THRESH_BINARY)
@@ -47,7 +47,7 @@ def next_level():
             res = cv.matchTemplate(threshed,template,cv.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
             w, h = template.shape[::-1]
-            if max_val > 0.6:
+            if max_val > 0.75 or (("level" in t_name or "collect" in t_name) and max_val > 0.6):
                 bottom_right = (top_left[0] + w, top_left[1] + h)
                 return (crop_x+top_left[0]+(w/2), crop_y+top_left[1]+(h/2))
 

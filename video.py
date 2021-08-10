@@ -4,9 +4,6 @@ import imutils
 
 cap = cv.VideoCapture(-1)
 
-template = cv.imread('level_2.png',0)
-w, h = template.shape[::-1]
-
 
 def draw_circle(event,x,y,flags,param):
     if event == cv.EVENT_LBUTTONDBLCLK:
@@ -30,7 +27,10 @@ while True:
     #gray = cv.bilateralFilter(gray,7,75,75)
     gray = cv.bitwise_not(gray)
     
+    
     ret,threshed = cv.threshold(gray,70,255,cv.THRESH_BINARY)
+    crop_x, crop_y, crop_w, crop_h = 255, 235, 150, 160
+    gray = gray[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     
     contours, hierarchy = cv.findContours(threshed, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     colored = cv.cvtColor(gray,cv.COLOR_GRAY2RGB) 
@@ -48,7 +48,7 @@ while True:
             points.append((bw/2+bx, bh/2+by))
     
     
-    
+    '''
     m = cv.mean(threshed)[0]
     #print(m)
     #ret,threshed = cv.threshold(gray, 200,255,cv.THRESH_TRUNC)
@@ -59,7 +59,7 @@ while True:
 
     cv.namedWindow('image')
     cv.setMouseCallback('image',draw_circle)
-
+    '''
     '''
     res = cv.matchTemplate(gray,template,cv.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, top_left = cv.minMaxLoc(res)
@@ -70,7 +70,7 @@ while True:
     cv.rectangle(gray,top_left, bottom_right, 255, 2)
     '''
 
-    cv.imshow('image', threshed)
+    cv.imshow('image', gray)
     if cv.waitKey(1) == ord('q'):
         break
 

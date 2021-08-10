@@ -2,7 +2,7 @@ def calibrate():
     import cv2 as cv
     from phonebot import PhoneBot
     
-    x1, x2, y1, y2 = 125, 160, 150, 220
+    x1, x2, y1, y2 = 145, 180, 150, 220
 
     bot = PhoneBot()
     bot.connect()

@@ -1,6 +1,6 @@
 from recognition import *
 from level import *
-from cam import save_timelapse
+from cam import save_timelapse, next_level_lapse
 from phonebot import PhoneBot
 from dictionary import search_dictionary, search_backup_dictionary, sort_words_20x
 from calibrator import camera_to_bot_coordinates
@@ -32,9 +32,9 @@ def tap_out_moves(moves, center=None):
             if center and i != len(move_set)-1: #recenter between words so we don't accidently pick up exra letters.
                 bot.move_to(x=cx, y=cy)
         bot.tap_up()
-        if j % 5 == 3:
-            bot.move_to(x=200)
-            save_timelapse()
+        # if j % 5 == 3:
+        #    bot.move_to(x=200)
+        #    save_timelapse()
 
 
 
@@ -78,6 +78,7 @@ while True:
     next_level_btn = next_level()        
     if next_level_btn:
         print("***************Next Level***************")
+        #next_level_lapse()
         level_btn_loc = next_level_btn
         finding_word_attempts = 0
         shuffles = 0
@@ -89,12 +90,13 @@ while True:
         time.sleep(0.5)
     elif teams_thing():
         finding_word_attempts = 0
-        bot.move_to(x=115, y=230)
+        bot.move_to(x=140, y=240)
         bot.tap()
     
     level = get_level_data()
     if not level:
         if level_btn_loc and last_tap > 0 and last_tap % 5 == 0:
+            #next_level_lapse()
             print("tapping next level button that we couldn't detect.")
             tap_btn(level_btn_loc)
             blind_next_level = True
@@ -139,5 +141,5 @@ while True:
     tap_out_moves(moves, center)
 
     bot.move_to(x=200)
-    save_timelapse()
+    #save_timelapse()
     time.sleep(2.5)
