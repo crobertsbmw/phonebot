@@ -25,3 +25,4 @@ Doing Everything Else
 ---------------------
 
 I'm assuming everyone just wants the bit for moving the robot around. But if you want to replicate the entire project, then I've included all the other files as well.
+The kickoff point for everything is the wordscapes.py file. You should start there.
