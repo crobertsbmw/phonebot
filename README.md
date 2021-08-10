@@ -1,6 +1,6 @@
 # BRUTE - The Wordscapes Dominating Robot
 
-[![Wordscapes Dominating Robot](https://i.imgur.com/ALAB3Md.png)](https://www.youtube.com/watch?v=R-qC-0gX8Dw "Wordscapes Dominating Robot")
+[![Wordscapes Dominating Robot](https://i.imgur.com/to0U2ay.png)](https://www.youtube.com/watch?v=R-qC-0gX8Dw "Wordscapes Dominating Robot")
 
 
 Sending Commands to the Robot
