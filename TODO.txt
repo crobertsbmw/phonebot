@@ -1,3 +1,0 @@
-Look at the max m value after we subtract the template to see if the letters are over or under saturated and then we can adjust the threshold value on that to get better detection.
-
-Have it return all the letter combos instead of just the most frequent. If we don't get an N letter word out, then we probably have the wrong letters.

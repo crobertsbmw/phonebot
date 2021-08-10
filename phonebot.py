@@ -35,7 +35,7 @@ class PhoneBot:
 
     def move_to(self, x=None, y=None, z=None):
         if y and y < 120:
-            print("ERROR. Y CANNOT BE LESS THAN 120")
+            print("ERROR. Y CANNOT BE LESS THAN 120") #If Y goes below 120 then it's likely the printer will ram the camera. You may not have this issue.
             return
         cmd = "G1"
         if x != None:
